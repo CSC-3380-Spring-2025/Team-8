@@ -1,7 +1,7 @@
-# [Name of the Project] : [Team Number]
+# [StudyVerse] : [8]
 # Members
 Project Manager: [Name] ([GitHub Name])\
-Communications Lead: [Name] ([GitHub Name])\
+Communications Lead: [Marcus Reese] (MarcusReese1)\
 Git Master: [Name] ([GitHub Name])\
 Design Lead: [Name] ([GitHub Name])\
 Quality Assurance Tester: [Name] ([GitHub Name])
