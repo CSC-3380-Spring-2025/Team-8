@@ -3,8 +3,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddHttpLogging(o => { });
+
+// Add a service for logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 var app = builder.Build();
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -12,6 +18,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+Console.WriteLine("Hello World!");
 app.UseHttpsRedirection();
 
 var summaries = new[]
