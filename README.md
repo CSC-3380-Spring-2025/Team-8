@@ -1,6 +1,6 @@
 # [StudyVerse] : [8]
 # Members
-Project Manager: [Name] ([GitHub Name])\
+Project Manager: Kameron Arceneaux (kamarceneaux)\
 Communications Lead: [Marcus Reese] (MarcusReese1)\
 Git Master: [Name] ([GitHub Name])\
 Design Lead: [Name] ([GitHub Name])\
@@ -10,11 +10,8 @@ Quality Assurance Tester: [Name] ([GitHub Name])
 
 Describe a little about what the project is about here.
 ## Platforms Tested on
-- MacOS
-- Android
-- iOS
-- Linux
-- Windows
+- Modern day web browsers on mobile and desktop.
+  
 # Important Links
 Kanban Board: [link]\
 Designs: [link]\
@@ -22,31 +19,37 @@ Styles Guide(s): [link]
 
 # How to Run Dev and Test Environment
 
-## Dependencies
-- List all dependencies here
-- Don't forget to include versions
-### Downloading Dependencies
-Describe where to download the dependencies here. Some will likely require a web download. Provide links here. For IDE extensions, make sure your project works with the free version of them, and detail which IDE(s) these are available in. 
+## Preliminaries
+1. Have Node.js installed on your machine
+2. Have the ASP.NET runtime and also the .NET sdk versions >9.0.0 installed on your machine.
+
+## Running the project
+The project is broken into two separate folders: frontend and backend. You can open each folder separately in VSCode or whatever editor for full support of each commands.
+Example, to access the npm run dev command you must be inside the frontend folder.
+
+To actually run the full stack implementation of the project:
+1. In the terminal, change directory into the 'frontend' folder.
+```terminal
+cd frontend
+```
+2. Type in `npm install` to run all the frontend dependencies
+```terminal
+npm install 
+```
+3. Following that, to run both projects simulatneously, you can run `npm run dev`
+```terminal
+npm run dev
+```
+
+## To run the dotnet project by itself
+1. Open the backend folder in the editor of your choice
+2. Type in `dotnet run` in the terminal to run the project.
+
+> Note: You may have to build the project to run it sometimes or incase project dependencies on the backend change, to do this you need to run: `dotnet build` in the terminal.
 
 ## Commands
 Describe how the commands and process to launch the project on the main branch in such a way that anyone working on the project knows how to check the affects of any code they add.
 
-```sh
-Example terminal command syntax
-```
-
-It is very common in these sections to see code in peculiar boxes to help them stand out. Check the markdown section of the Project Specifications to see how to add more / customize these.
-
-```python
-def code_highlight_example(m: int, m: float, s: str) -> str:
-	return s + str(n*m)
-```
-
-```java
-public static void main(String[] args){
-	System.out.println("Hello, World!");
-}
-```
 
 ```c#
 static void Main(){
