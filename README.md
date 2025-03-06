@@ -2,7 +2,7 @@
 # Members
 Project Manager: Kameron Arceneaux (kamarceneaux)\
 Communications Lead: [Marcus Reese] (MarcusReese1)\
-Git Master: [Name] ([GitHub Name])\
+Git Master: [Ryan Lam] (ryantroy43)\
 Design Lead: [Alanna Reeves-Miller] (areev25)\
 Quality Assurance Tester: [Name] ([GitHub Name])
 
