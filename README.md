@@ -22,6 +22,22 @@ Styles Guide(s): [link]
 ## Preliminaries
 1. Have Node.js installed on your machine
 2. Have the ASP.NET runtime and also the .NET sdk versions >9.0.0 installed on your machine.
+3. Make sure the .env file is present on your machine. The .env file is found in the OneDrive. 
+4. The file should be placed in the Team-8 directory and the file structure should reflect the one on the bottom.
+
+```
+|
+|- Team-8
+	|
+	|
+	|- backend/
+		|
+		|-...
+	|- frontend/
+		|
+		|-...
+	|- .env
+```
 
 ## Running the project
 The project is broken into two separate folders: frontend and backend. You can open each folder separately in VSCode or whatever editor for full support of each commands.
