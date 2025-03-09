@@ -1,6 +1,8 @@
 using DotNetEnv;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,8 +26,14 @@ builder.Services.AddHttpLogging(o => { });
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-// Configure database
+// Configure database and user authentication section
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddDataProtection();
+
+builder.Services.AddIdentityCore<User>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 // app.UseHttpLogging();
