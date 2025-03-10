@@ -1,7 +1,12 @@
+using System.Text;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
+using StudyVerseBackend.Infastructure.Dependencies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,17 +20,54 @@ if (string.IsNullOrEmpty(connectionString))
     throw new Exception("Database connection string is missing from the environment or the environment wasn't provided.");
 }
 
+string? secret = Env.GetString("JWTCONFIG_SECRET") ??
+                    throw new Exception("Missing JWT Secret key from environment for authenitication purposes.");
+string? issuer = Env.GetString("JWTCONFIG_VALID_ISSUER") ?? 
+                    throw new Exception("Missing the Issuer for authentication purposes.");
+string audience = Env.GetString("JWTCONFIG_VALID_AUDIENCE") ??
+                    throw new Exception("Missing the audience key for authentication purposes.");
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpLogging(o => { });
+
+// Configure any dependency injection objects here
+builder.Services.AddSingleton<IEnvService, EnvService>();
 
 // Add a service for logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-// Configure database
+// Configure database and user authentication section
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddDataProtection();
+
+builder.Services.AddIdentityCore<User>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// Configurations on authentication(associating with the Jwt)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = audience,
+        ValidIssuer = issuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+    };
+});
 
 var app = builder.Build();
 // app.UseHttpLogging();
@@ -36,13 +78,18 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-Console.WriteLine("Hello World!");
 app.UseHttpsRedirection();
+
+// Turn the auth related resources
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("/hello", async (context) =>
 {  
     app.Logger.LogInformation("/hello ENDPOINT");
     await context.Response.WriteAsync("Hello!");
 });
+
+app.MapControllers();
 
 app.Run();
