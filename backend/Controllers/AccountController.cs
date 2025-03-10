@@ -4,6 +4,7 @@ using System.Text;
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Dependencies;
@@ -42,9 +43,13 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                 Email = registrationDto.Email,
                 Name = registrationDto.Name,
                 Avatar_Url = registrationDto.Avatar_Url,
-                CustomizationOptions = registrationDto.CustomizationOptions,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
+
+            if (!String.IsNullOrEmpty(registrationDto.CustomizationOptions))
+            {
+                user.SetCustomizationSettings(registrationDto.CustomizationOptions);
+            }
             
             // POST/create the object in the database
             var result = await userManager.CreateAsync(user, registrationDto.Password);
@@ -68,6 +73,53 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                     ModelState.AddModelError("error", error.Description);
                 }
             }
+        }
+
+        return BadRequest(ModelState);
+    }
+    
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto loginDto)
+    {
+        /*
+         * Users will have the option to provide a email or username, if neither is provided then a error should be thrown
+         */
+        bool isMissingIdentifier = ( !String.IsNullOrEmpty(loginDto.UserName)  || !String.IsNullOrEmpty(loginDto.UserName) );
+        if (ModelState.IsValid && !isMissingIdentifier)
+        {
+            // If the user provided a username
+            if (!String.IsNullOrEmpty(loginDto.UserName))
+            {
+                var user = userManager.FindByNameAsync(loginDto.UserName);
+                if (user.Result != null)
+                {
+                    if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
+                    {
+                        string? token = GenerateToken(user.Result.UserName, user.Result.Email);
+                        return Accepted(new { token });
+                    }
+                } 
+            }
+            
+            if (!String.IsNullOrEmpty(loginDto.Email))
+            {
+                var user = userManager.FindByEmailAsync(loginDto.Email);
+                if (user.Result != null)
+                {
+                    if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
+                    {
+                        string? token = GenerateToken(user.Result.UserName, user.Result.Email);
+                        return Accepted(new { token });
+                    }
+                } 
+            }
+            
+            ModelState.AddModelError("error", "Invalid email/username or password.");
+        }
+
+        if (!isMissingIdentifier)
+        {
+            ModelState.AddModelError("error","Missing username or email. Cannot proceed with authentication." );
         }
 
         return BadRequest(ModelState);
