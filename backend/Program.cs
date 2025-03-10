@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
+using StudyVerseBackend.Infastructure.Dependencies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,9 @@ string audience = Env.GetString("JWTCONFIG_VALID_AUDIENCE") ??
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpLogging(o => { });
+
+// Configure any dependency injection objects here
+builder.Services.AddSingleton<IEnvService, EnvService>();
 
 // Add a service for logging
 builder.Logging.ClearProviders();
@@ -85,5 +89,7 @@ app.MapGet("/hello", async (context) =>
     app.Logger.LogInformation("/hello ENDPOINT");
     await context.Response.WriteAsync("Hello!");
 });
+
+app.MapControllers();
 
 app.Run();
