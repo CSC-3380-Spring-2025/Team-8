@@ -10,6 +10,12 @@ public class ApplicationDbContext
  * This is the class where the Database context will reside, which is responsible for representing the
  * Tables as Models in C#.
  */
+
+    public DbSet<User> Users { get; set; }
+
+
+
+
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
