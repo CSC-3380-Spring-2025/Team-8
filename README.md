@@ -4,7 +4,7 @@ Project Manager: Kameron Arceneaux (kamarceneaux)\
 Communications Lead: [Marcus Reese] (MarcusReese1)\
 Git Master: [Ryan Lam] (ryantroy43)\
 Design Lead: [Name] ([GitHub Name])\
-Quality Assurance Tester: [Name] ([GitHub Name])
+Quality Assurance Tester: Queban Lee (queban)
 
 # About Our Software
 
