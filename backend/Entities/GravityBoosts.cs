@@ -11,7 +11,7 @@ public class GravityBoosts
     public DateTimeOffset Sent_At { get; set; } = DateTimeOffset.Now;
     [Required]
     public String Sender_Id { get; set; }
-    public User Sender_User { get; set; }
+    public User Sender { get; set; }
     [Required]
     public String Receiver_Id { get; set; }
     public User Receiver { get; set; }

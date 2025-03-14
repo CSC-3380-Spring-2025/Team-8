@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
+using System.Reflection.Emit;
 
 namespace StudyVerseBackend.Infastructure.Contexts;
 
@@ -14,8 +15,8 @@ public class ApplicationDbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
-    
-    public DbSet<GravityBoosts> GravityBoosts { get; set;}
+
+    public DbSet<GravityBoosts> GravityBoosts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,6 +33,17 @@ public class ApplicationDbContext
         builder.Entity<User>()
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
+
+        // Code dealing with GravityBoosts
+        builder.Entity<GravityBoosts>()
+            .HasOne(gb => gb.Sender)
+            .WithMany()
+            .HasForeignKey(gb => gb.Sender_Id);
+
+        builder.Entity<GravityBoosts>()
+            .HasOne(gb => gb.Receiver)
+            .WithMany()
+            .HasForeignKey(gb => gb.Receiver_Id);
     }
 
 }
