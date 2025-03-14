@@ -14,6 +14,8 @@ public class ApplicationDbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
+    
+    public DbSet<GravityBoosts> GravityBoosts { get; set;}
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
