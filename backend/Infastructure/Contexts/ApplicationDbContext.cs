@@ -11,6 +11,9 @@ public class ApplicationDbContext
  * Tables as Models in C#.
  */
 {
+    public DbSet<CalendarEvent> CalendarEvents { get; set; }
+
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
@@ -19,6 +22,7 @@ public class ApplicationDbContext
     {
         base.OnModelCreating(builder);
 
+        // Configuring relationships with users
         builder.Entity<User>()
             .HasIndex(u => u.UserName)
             .IsUnique();
@@ -30,6 +34,16 @@ public class ApplicationDbContext
         builder.Entity<User>()
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
+
+        /*
+         * This code creates the following relationship:
+         * A user can have many events, but a event must HAVE one user
+         */
+        builder.Entity<User>()
+            .HasMany(e => e.CalendarEvents)
+            .WithOne(e => e.User)
+            .HasForeignKey(e => e.UserId)
+            .IsRequired();
     }
 
 }
