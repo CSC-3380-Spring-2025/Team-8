@@ -7,6 +7,7 @@ public class PomodoroSession
 
 {
     [Required] 
+    [Key]
     public int SessionId { get; set; }
     [Required] 
     public string UserId { get; set; }

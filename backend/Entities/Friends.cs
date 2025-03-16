@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using StudyVerseBackend.Infastructure.Enumerations;
 
 namespace StudyVerseBackend.Entities
 {
@@ -6,20 +7,19 @@ namespace StudyVerseBackend.Entities
 
     public class Friends {
         [Required]
-        [Key]
-        public string UserId { get; set; }
+        public string RequestorId { get; set; }
         [Required]
-        [Key]
-        public string FriendId { get; set; }
-        [Required]
-        public string Status { get; set; }
+        public string RecipientId { get; set; }
+
+        [Required] 
+        public FriendshipStatus Status { get; set; } = FriendshipStatus.Pending;
         [Required]
         public DateTime TimeRequest { get; set; }
         
-        public User Friend { get; set; }
+        public User Requestor { get; set; }
 
 
-        public User User { get; set; }
+        public User Recipient { get; set; }
 
     }
 }

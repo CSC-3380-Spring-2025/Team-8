@@ -23,7 +23,6 @@ public class ApplicationDbContext
     public DbSet<GravityBoosts> GravityBoosts { get; set; }
     public DbSet<Task> Tasks { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -40,20 +39,29 @@ public class ApplicationDbContext
         builder.Entity<User>()
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
+        
+        /*
+         * Configuration with Enum
+         */
+        builder.Entity<Friends>()
+            .Property(f => f.Status)
+            .HasConversion<int>();
+        
+        /*
+         * COnfigurations with the friends table
+         */
+        builder.Entity<Friends>()
+            .HasKey(f => new { f.RequestorId, f.RecipientId });
+        
+        builder.Entity<Friends>()
+            .HasOne(fr => fr.Requestor)
+            .WithMany()
+            .HasForeignKey(fr => fr.RequestorId);
 
         builder.Entity<Friends>()
-            .HasOne(fr => fr.User)
+            .HasOne(fr => fr.Recipient)
             .WithMany()
-            .HasForeignKey(fr => fr.UserId);
-
-        builder.Entity<Friends>()
-            .HasOne(fr => fr.Friend)
-            .WithMany()
-            .HasForeignKey(fr => fr.FriendId);
-
-        builder.Entity<User>()
-            .HasMany(e => e.Tasks)
-            .WithOne(e => e.CurrentUser);
+            .HasForeignKey(fr => fr.RecipientId);
 
         // Code dealing with GravityBoosts
         builder.Entity<GravityBoosts>()
@@ -84,5 +92,12 @@ public class ApplicationDbContext
             .WithOne(ps => ps.CurrentUser)
             .HasForeignKey(ps => ps.UserId)
             .IsRequired();
+        
+        /*
+         * A user can have many tasks, but a task can have only one user
+         */
+        builder.Entity<User>()
+            .HasMany(e => e.Tasks)
+            .WithOne(e => e.CurrentUser);
     }
 }
