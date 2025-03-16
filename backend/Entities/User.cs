@@ -18,10 +18,9 @@ public class User : IdentityUser
 
     public string? CustomizationOptions { get; set; }
 
-    public ICollection<Task> Tasks { get; set; }
-
-
+    public ICollection<Task> Tasks { get; } = new List<Task>();
     public ICollection<CalendarEvent> CalendarEvents { get; } = new List<CalendarEvent>();
+    public ICollection<PomodoroSession> PomodoroSessions { get; } = new List<PomodoroSession>();
 
 
     public void SetCustomizationSettings(string settings)
