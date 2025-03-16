@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
+using StudyVerseBackend.Entities;
 
 namespace StudyVerseBackend.Entities;
 
@@ -17,7 +18,11 @@ public class User : IdentityUser
 
     public string? CustomizationOptions { get; set; }
 
+    public ICollection<Task> Tasks { get; set; }
+
+
     public ICollection<CalendarEvent> CalendarEvents { get; } = new List<CalendarEvent>();
+
 
     public void SetCustomizationSettings(string settings)
     {

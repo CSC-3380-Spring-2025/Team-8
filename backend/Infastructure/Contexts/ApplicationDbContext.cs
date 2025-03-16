@@ -38,6 +38,10 @@ public class ApplicationDbContext
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
 
+        builder.Entity<User>()
+            .HasMany(e => e.Tasks)
+            .WithOne(e => e.CurrentUser)
+
         // Code dealing with GravityBoosts
         builder.Entity<GravityBoosts>()
             .HasOne(gb => gb.Sender)
@@ -55,6 +59,7 @@ public class ApplicationDbContext
         builder.Entity<User>()
             .HasMany(e => e.CalendarEvents)
             .WithOne(e => e.User)
+
             .HasForeignKey(e => e.UserId)
             .IsRequired();
     }
