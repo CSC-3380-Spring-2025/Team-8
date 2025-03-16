@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StudyVerseBackend.Infastructure.Contexts;
@@ -11,9 +12,11 @@ using StudyVerseBackend.Infastructure.Contexts;
 namespace StudyVerseBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250314182226_GravityBoostsTable")]
+    partial class GravityBoostsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,39 +187,6 @@ namespace StudyVerseBackend.Migrations
                     b.HasIndex("Sender_Id");
 
                     b.ToTable("GravityBoosts");
-
-            modelBuilder.Entity("StudyVerseBackend.Entities.CalendarEvent", b =>
-                {
-                    b.Property<int>("EventId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EventId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("EventDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EventType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("EventId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CalendarEvents");
                 });
 
             modelBuilder.Entity("StudyVerseBackend.Entities.User", b =>
@@ -371,21 +341,6 @@ namespace StudyVerseBackend.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
-
-            modelBuilder.Entity("StudyVerseBackend.Entities.CalendarEvent", b =>
-                {
-                    b.HasOne("StudyVerseBackend.Entities.User", "User")
-                        .WithMany("CalendarEvents")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("StudyVerseBackend.Entities.User", b =>
-                {
-                    b.Navigation("CalendarEvents");
                 });
 #pragma warning restore 612, 618
         }
