@@ -30,6 +30,11 @@ public class ApplicationDbContext
         builder.Entity<User>()
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
+        builder.Entity<User>()
+            .HasMany(e => e.Tasks)
+            .WithOne(e => e.CurrentUser)
+            .HasForeignKey(e => e.UserId)
+            .IsRequired();
     }
 
 }

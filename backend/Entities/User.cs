@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
+using StudyVerseBackend.Entities;
 
 namespace StudyVerseBackend.Entities;
 
@@ -16,7 +17,7 @@ public class User: IdentityUser
     public string Avatar_Url { get; set; } = string.Empty;
     
     public string? CustomizationOptions { get; set; }
-
+    public ICollection<Task> Tasks { get; set; }
     public void SetCustomizationSettings(string settings)
     {
         CustomizationOptions = JsonSerializer.Serialize(settings);
