@@ -19,7 +19,11 @@ public class ApplicationDbContext
     {
     }
 
+
+    public DbSet<Friends> Friends { get; set; }
+
     public DbSet<GravityBoosts> GravityBoosts { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -38,6 +42,16 @@ public class ApplicationDbContext
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
 
+        builder.Entity<Friends>()
+            .HasOne(fr => fr.User)
+            .WithMany()
+            .HasForeignKey(fr => fr.UserId);
+
+        builder.Entity<Friends>()
+            .HasOne(fr => fr.Friend)
+            .WithMany()
+            .HasForeignKey(fr => fr.FriendId);
+            
         builder.Entity<User>()
             .HasMany(e => e.Tasks)
             .WithOne(e => e.CurrentUser)
@@ -62,6 +76,7 @@ public class ApplicationDbContext
 
             .HasForeignKey(e => e.UserId)
             .IsRequired();
+
     }
 
 }
