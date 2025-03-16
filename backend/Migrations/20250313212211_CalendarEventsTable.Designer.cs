@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StudyVerseBackend.Infastructure.Contexts;
@@ -11,9 +12,11 @@ using StudyVerseBackend.Infastructure.Contexts;
 namespace StudyVerseBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250313212211_CalendarEventsTable")]
+    partial class CalendarEventsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,37 +156,6 @@ namespace StudyVerseBackend.Migrations
 
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
-
-            modelBuilder.Entity("StudyVerseBackend.Entities.GravityBoosts", b =>
-                {
-                    b.Property<int>("Boost_Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Boost_Id"));
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Receiver_Id")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Sender_Id")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("Sent_At")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Boost_Id");
-
-                    b.HasIndex("Receiver_Id");
-
-                    b.HasIndex("Sender_Id");
-
-                    b.ToTable("GravityBoosts");
 
             modelBuilder.Entity("StudyVerseBackend.Entities.CalendarEvent", b =>
                 {
@@ -353,24 +325,6 @@ namespace StudyVerseBackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
-
-            modelBuilder.Entity("StudyVerseBackend.Entities.GravityBoosts", b =>
-                {
-                    b.HasOne("StudyVerseBackend.Entities.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("Receiver_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("StudyVerseBackend.Entities.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("Sender_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("Sender");
 
             modelBuilder.Entity("StudyVerseBackend.Entities.CalendarEvent", b =>
                 {
