@@ -15,6 +15,8 @@ public class ApplicationDbContext
     {
     }
 
+    public DbSet<Friends> Friends { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -30,6 +32,16 @@ public class ApplicationDbContext
         builder.Entity<User>()
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
+
+        builder.Entity<Friends>()
+            .HasOne(fr => fr.User)
+            .WithMany()
+            .HasForeignKey(fr => fr.UserId);
+
+        builder.Entity<Friends>()
+            .HasOne(fr => fr.Friend)
+            .WithMany()
+            .HasForeignKey(fr => fr.FriendId);
     }
 
 }
