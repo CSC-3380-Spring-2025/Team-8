@@ -76,10 +76,13 @@ public class ApplicationDbContext
             .HasForeignKey(e => e.UserId)
             .IsRequired();
         
-        builder.Entity<PomodoroSession>()
-            .HasOne<object>(p => p.SessionId)         // Navigation property
-            .WithMany()                 
-            .HasForeignKey(p => p.UserId);
-
+        /*
+         * A user can have many sessions but a pomodoro session must have one user
+         */
+        builder.Entity<User>()
+            .HasMany(user => user.PomodoroSessions)
+            .WithOne(ps => ps.CurrentUser)
+            .HasForeignKey(ps => ps.UserId)
+            .IsRequired();
     }
 }
