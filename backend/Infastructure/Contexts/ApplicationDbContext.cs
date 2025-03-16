@@ -1,33 +1,27 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
-using System.Reflection.Emit;
 
 namespace StudyVerseBackend.Infastructure.Contexts;
 
 public class ApplicationDbContext
     : IdentityDbContext<User>
-{
-
-
-    public DbSet<PomodoroSession> PomodoroSessions { get; set; }
+{ 
 /*
  * This is the class where the Database context will reside, which is responsible for representing the
  * Tables as Models in C#.
  */
-
-{
-    public DbSet<CalendarEvent> CalendarEvents { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
 
-
+    public DbSet<CalendarEvent> CalendarEvents { get; set; }
     public DbSet<Friends> Friends { get; set; }
-
+    public DbSet<PomodoroSession> PomodoroSessions { get; set; }
     public DbSet<GravityBoosts> GravityBoosts { get; set; }
+    public DbSet<Task> Tasks { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -56,10 +50,10 @@ public class ApplicationDbContext
             .HasOne(fr => fr.Friend)
             .WithMany()
             .HasForeignKey(fr => fr.FriendId);
-            
+
         builder.Entity<User>()
             .HasMany(e => e.Tasks)
-            .WithOne(e => e.CurrentUser)
+            .WithOne(e => e.CurrentUser);
 
         // Code dealing with GravityBoosts
         builder.Entity<GravityBoosts>()
@@ -81,12 +75,11 @@ public class ApplicationDbContext
 
             .HasForeignKey(e => e.UserId)
             .IsRequired();
-
-    }
-
+        
         builder.Entity<PomodoroSession>()
             .HasOne<object>(p => p.SessionId)         // Navigation property
             .WithMany()                 
             .HasForeignKey(p => p.UserId);
-}
+
+    }
 }
