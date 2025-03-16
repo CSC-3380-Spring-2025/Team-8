@@ -7,10 +7,15 @@ namespace StudyVerseBackend.Infastructure.Contexts;
 
 public class ApplicationDbContext
     : IdentityDbContext<User>
+{
+
+
+    public DbSet<PomodoroSession> PomodoroSessions { get; set; }
 /*
  * This is the class where the Database context will reside, which is responsible for representing the
  * Tables as Models in C#.
  */
+
 {
     public DbSet<CalendarEvent> CalendarEvents { get; set; }
 
@@ -79,4 +84,9 @@ public class ApplicationDbContext
 
     }
 
+        builder.Entity<PomodoroSession>()
+            .HasOne<object>(p => p.SessionId)         // Navigation property
+            .WithMany()                 
+            .HasForeignKey(p => p.UserId);
+}
 }
