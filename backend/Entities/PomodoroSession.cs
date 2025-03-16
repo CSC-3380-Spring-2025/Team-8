@@ -8,17 +8,15 @@ namespace StudyVerseBackend.Entities;
 public class PomodoroSession
 
 {
+    public PomodoroSession(string userId)
+    {
+        UserId = userId;
+    } 
     [Required]
-    public int SessionId { get;set; }
-    
-   [Required] 
-   [Column("user_id")]
-   public int UserId { get; set; }
-   
-   
-   
+     public int SessionId { get;set; }
+     [Required] 
+       public String UserId { get; set; }
    [Required]
-   [Column("finishing_timestamp")]
    public DateTime FinishingTimeStamp { get; set; }
 
  
