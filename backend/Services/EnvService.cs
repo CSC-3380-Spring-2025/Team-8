@@ -1,4 +1,6 @@
-namespace StudyVerseBackend.Infastructure.Dependencies;
+using StudyVerseBackend.Interfaces;
+
+namespace StudyVerseBackend.Services;
 
 public class EnvService : IEnvService
 {

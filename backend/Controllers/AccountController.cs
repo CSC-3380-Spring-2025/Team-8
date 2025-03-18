@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
-using StudyVerseBackend.Infastructure.Dependencies;
+using StudyVerseBackend.Interfaces;
 using StudyVerseBackend.Models.Authenticate;
 
 namespace StudyVerseBackend.Controllers;
 
 [ApiController]
 [Route("api/authenticate")]
-public class AccountController (UserManager<User> userManager, IEnvService env) : ControllerBase
+public class AccountController(UserManager<User> userManager, IEnvService env) : ControllerBase
 {
-    
+
     [HttpPost("signup")]
     public async Task<IActionResult> Register(RegistrationDto registrationDto)
     {
@@ -29,7 +29,7 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                 ModelState.AddModelError("error", "Username is already taken.");
                 return BadRequest(ModelState);
             }
-            
+
             existedUser = await userManager.FindByEmailAsync(registrationDto.Email);
             if (existedUser != null)
             {
@@ -50,7 +50,7 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
             {
                 user.SetCustomizationSettings(registrationDto.CustomizationOptions);
             }
-            
+
             // POST/create the object in the database
             var result = await userManager.CreateAsync(user, registrationDto.Password);
 
@@ -61,7 +61,7 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                 var token = GenerateToken(registrationDto.Email, signedInUser.Result.Id);
                 return Ok(new { token });
             }
-            
+
             // this adds errors
             foreach (IdentityError error in result.Errors)
             {
@@ -78,14 +78,14 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
 
         return BadRequest(ModelState);
     }
-    
+
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto)
     {
         /*
          * Users will have the option to provide a email or username, if neither is provided then a error should be thrown
          */
-        bool isMissingIdentifier = ( !String.IsNullOrEmpty(loginDto.UserName)  || !String.IsNullOrEmpty(loginDto.UserName) );
+        bool isMissingIdentifier = (!String.IsNullOrEmpty(loginDto.UserName) || !String.IsNullOrEmpty(loginDto.UserName));
         if (ModelState.IsValid && !isMissingIdentifier)
         {
             // If the user provided a username
@@ -99,9 +99,9 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                         string? token = GenerateToken(user.Result.Email, user.Result.Id);
                         return Accepted(new { token });
                     }
-                } 
+                }
             }
-            
+
             if (!String.IsNullOrEmpty(loginDto.Email))
             {
                 var user = userManager.FindByEmailAsync(loginDto.Email);
@@ -112,15 +112,15 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                         string? token = GenerateToken(user.Result.Email, user.Result.Id);
                         return Accepted(new { token });
                     }
-                } 
+                }
             }
-            
+
             ModelState.AddModelError("error", "Invalid email/username or password.");
         }
 
         if (!isMissingIdentifier)
         {
-            ModelState.AddModelError("error","Missing username or email. Cannot proceed with authentication." );
+            ModelState.AddModelError("error", "Missing username or email. Cannot proceed with authentication.");
         }
 
         return BadRequest(ModelState);
@@ -148,7 +148,7 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
             Audience = audience,
             SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
         };
-        
+
         // the part that actually generates the token
         var securityToken = tokenHandler.CreateToken(tokenDescriptor);
         var token = tokenHandler.WriteToken(securityToken);

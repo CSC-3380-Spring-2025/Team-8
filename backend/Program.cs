@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
 using StudyVerseBackend.Infastructure.Dependencies;
+using StudyVerseBackend.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,7 @@ if (string.IsNullOrEmpty(connectionString))
 
 string? secret = Env.GetString("JWTCONFIG_SECRET") ??
                     throw new Exception("Missing JWT Secret key from environment for authenitication purposes.");
-string? issuer = Env.GetString("JWTCONFIG_VALID_ISSUER") ?? 
+string? issuer = Env.GetString("JWTCONFIG_VALID_ISSUER") ??
                     throw new Exception("Missing the Issuer for authentication purposes.");
 string audience = Env.GetString("JWTCONFIG_VALID_AUDIENCE") ??
                     throw new Exception("Missing the audience key for authentication purposes.");
@@ -85,7 +86,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/hello", async (context) =>
-{  
+{
     app.Logger.LogInformation("/hello ENDPOINT");
     await context.Response.WriteAsync("Hello!");
 });
