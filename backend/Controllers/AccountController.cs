@@ -54,10 +54,12 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
             // POST/create the object in the database
             var result = await userManager.CreateAsync(user, registrationDto.Password);
 
-            if (result.Succeeded)
+            var signedInUser = userManager.FindByEmailAsync(registrationDto.Email);
+
+            if (result.Succeeded && signedInUser.IsCompleted)
             {
                 var token = GenerateToken(registrationDto.UserName, 
-                    registrationDto.Email);
+                    registrationDto.Email, signedInUser.Result.Id);
                 return Ok(new { token });
             }
             
@@ -95,7 +97,7 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                 {
                     if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
                     {
-                        string? token = GenerateToken(user.Result.UserName, user.Result.Email);
+                        string? token = GenerateToken(user.Result.UserName, user.Result.Email, user.Result.Id);
                         return Accepted(new { token });
                     }
                 } 
@@ -108,7 +110,7 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
                 {
                     if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
                     {
-                        string? token = GenerateToken(user.Result.UserName, user.Result.Email);
+                        string? token = GenerateToken(user.Result.UserName, user.Result.Email, user.Result.Id);
                         return Accepted(new { token });
                     }
                 } 
@@ -126,7 +128,7 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
     }
 
 
-    private string? GenerateToken(string userName, string email)
+    private string? GenerateToken(string userName, string email, string userId)
     {
         string secret = Env.GetString("JWTCONFIG_SECRET");
         string issuer = Env.GetString("JWTCONFIG_VALID_ISSUER");
@@ -139,7 +141,8 @@ public class AccountController (UserManager<User> userManager, IEnvService env) 
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimTypes.Email, email)
+                new Claim(ClaimTypes.Email, email),
+                new Claim("userId", userId)
             }),
             // Set the token to expire one day later, will be changed later
             Expires = DateTime.UtcNow.AddDays(1),
