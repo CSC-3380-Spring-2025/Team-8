@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using StudyVerseBackend.Entities;
+using StudyVerseBackend.Infastructure.Enumerations;
 
 namespace StudyVerseBackend.Entities;
 
@@ -21,6 +22,11 @@ public class User : IdentityUser
     public ICollection<Task> Tasks { get; } = new List<Task>();
     public ICollection<CalendarEvent> CalendarEvents { get; } = new List<CalendarEvent>();
     public ICollection<PomodoroSession> PomodoroSessions { get; } = new List<PomodoroSession>();
+
+    public PlanetStatus PlanetStatus = PlanetStatus.Mercury;
+    public int Stars = 0;
+
+    public ICollection<ConstellationStatus> ConstellationStatuses = new List<ConstellationStatus>();
 
 
     public void SetCustomizationSettings(string settings)

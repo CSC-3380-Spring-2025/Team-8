@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
-using StudyVerseBackend.Infastructure.Dependencies;
 using StudyVerseBackend.Interfaces;
+using StudyVerseBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

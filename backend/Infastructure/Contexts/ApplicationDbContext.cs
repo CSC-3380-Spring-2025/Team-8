@@ -6,11 +6,11 @@ namespace StudyVerseBackend.Infastructure.Contexts;
 
 public class ApplicationDbContext
     : IdentityDbContext<User>
-{ 
-/*
- * This is the class where the Database context will reside, which is responsible for representing the
- * Tables as Models in C#.
- */
+{
+    /*
+     * This is the class where the Database context will reside, which is responsible for representing the
+     * Tables as Models in C#.
+     */
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -39,20 +39,32 @@ public class ApplicationDbContext
         builder.Entity<User>()
             .Property(u => u.CustomizationOptions)
             .HasColumnType("jsonb");
-        
+
         /*
-         * Configuration with Enum
+         * Configuration with Enums
          */
         builder.Entity<Friends>()
             .Property(f => f.Status)
             .HasConversion<int>();
-        
+
+        builder.Entity<User>()
+            .Property(user => user.PlanetStatus)
+            .HasConversion<int>();
+
+        builder.Entity<ConstellationStatus>()
+            .Property(con => con.OldPlanet)
+            .HasConversion<int>();
+
+        builder.Entity<ConstellationStatus>()
+            .Property(con => con.NewPlanet)
+            .HasConversion<int>();
+
         /*
          * COnfigurations with the friends table
          */
         builder.Entity<Friends>()
             .HasKey(f => new { f.RequestorId, f.RecipientId });
-        
+
         builder.Entity<Friends>()
             .HasOne(fr => fr.Requestor)
             .WithMany()
@@ -83,7 +95,7 @@ public class ApplicationDbContext
 
             .HasForeignKey(e => e.UserId)
             .IsRequired();
-        
+
         /*
          * A user can have many sessions but a pomodoro session must have one user
          */
@@ -92,12 +104,19 @@ public class ApplicationDbContext
             .WithOne(ps => ps.CurrentUser)
             .HasForeignKey(ps => ps.UserId)
             .IsRequired();
-        
+
         /*
          * A user can have many tasks, but a task can have only one user
          */
         builder.Entity<User>()
             .HasMany(e => e.Tasks)
             .WithOne(e => e.CurrentUser);
+
+        /*
+         * A user can have many constellation status changes
+         */
+        builder.Entity<User>()
+            .HasMany(e => e.ConstellationStatuses)
+            .WithOne(e => e.User);
     }
 }
