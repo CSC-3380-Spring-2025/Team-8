@@ -2,3 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 @plugin "daisyui";
+
+body {
+  font-family: Helvetica, sans-serif;
+}
+

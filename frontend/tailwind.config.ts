@@ -8,11 +8,10 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
     },
   },
   plugins: [],
+  daisyui: {
+    themes: ["light"]
+  }
 } satisfies Config;
