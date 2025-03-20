@@ -7,6 +7,7 @@ import { Menu } from "lucide-react";
 const Navbar = () => {
   return (
       <>
+          <p>Hello World</p>
       </>
   );
 }
