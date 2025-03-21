@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.13.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mantine/core": "^7.17.2",
