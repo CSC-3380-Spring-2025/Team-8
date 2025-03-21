@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {MantineProvider} from "@mantine/core";
+import Navbar from "./_global_components/Navbar";
 
 
 const geistSans = Geist({
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Navbar/>
         <MantineProvider>
           {children}
         </MantineProvider>
