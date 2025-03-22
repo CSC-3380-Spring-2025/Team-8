@@ -8,7 +8,7 @@ const Navbar = () => {
     return (
         <nav>
           <div className="logo">
-              <img src="studyverselogo.jpg" alt={"Image representing Study Verse logo."}/>
+              <img src="studyverselogo.png" alt={"Image representing Study Verse logo."}/>
           </div>
             <div className="menu" onClick={() => setMenuOpen(!menuOpen)}>
                 <span></span>

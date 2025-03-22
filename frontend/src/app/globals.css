@@ -109,6 +109,7 @@ nav .menu span {
 
   nav ul.open {
     display: flex;
+    padding-left: 0px;
   }
 
   nav ul li {
