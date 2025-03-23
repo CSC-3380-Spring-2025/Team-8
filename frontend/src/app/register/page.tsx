@@ -1,3 +1,13 @@
+"use client";
+
+import RegistrationStepper from "@/app/register/_components/RegistrationStepper";
+import {Container} from "@mui/material";
+
 export default function Page() {
-    return <h1>HELLO FROM SIGN-up</h1>
+    return (
+        <Container>
+            <h1>Register</h1>
+            <RegistrationStepper/>
+        </Container>
+    );
 }
