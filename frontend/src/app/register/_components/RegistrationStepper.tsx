@@ -5,12 +5,24 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import BasicStepPage from "@/app/register/_components/BasicStepPage";
+import {RegistrationDTO} from "@/app/register/registration_dto";
 
-const steps = ['Select campaign settings', 'Create an ad group', 'Create an ad'];
+const steps = ['Basic', "Personal", "Verify"];
 
 export default function RegistrationStepper() {
     const [activeStep, setActiveStep] = useState(0);
     const [skipped, setSkipped] = useState(new Set<number>());
+    const [signUp, setSignUp] = useState<RegistrationDTO>({
+        email: "",
+        password: "",
+        name: "",
+        username: "",
+    });
+
+    function handleSignUpForm(signUp: RegistrationDTO) {
+        setSignUp(signUp);
+    }
 
     const isStepOptional = (step: number) => {
         return step === 1;
@@ -59,20 +71,13 @@ export default function RegistrationStepper() {
             <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
                     const stepProps: { completed?: boolean } = {};
-                    const labelProps: {
-                        optional?: React.ReactNode;
-                    } = {};
-                    if (isStepOptional(index)) {
-                        labelProps.optional = (
-                            <Typography variant="caption">Optional</Typography>
-                        );
-                    }
                     if (isStepSkipped(index)) {
                         stepProps.completed = false;
                     }
+                    console.log(stepProps)
                     return (
                         <Step key={label} {...stepProps}>
-                            <StepLabel {...labelProps}>{label}</StepLabel>
+                            <StepLabel>{label}</StepLabel>
                         </Step>
                     );
                 })}
@@ -80,7 +85,7 @@ export default function RegistrationStepper() {
             {activeStep === steps.length ? (
                 <>
                     <Typography sx={{ mt: 2, mb: 1 }}>
-                        All steps completed - you&apos;re finished
+                        Confirm your information.
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Box sx={{ flex: '1 1 auto' }} />
@@ -89,7 +94,13 @@ export default function RegistrationStepper() {
                 </>
             ) : (
                 <>
-                    <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
+                    {
+                        activeStep == 0 ? (
+                            <BasicStepPage signUpForm={signUp} onDataChanged={handleSignUpForm}/>
+                        ) : (
+                            <h1>ANOTHER </h1>
+                        )
+                    }
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Button
                             color="inherit"

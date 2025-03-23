@@ -127,3 +127,10 @@ nav .menu span {
     color: #000000;
   }
 }
+
+/*
+BasicStepPage.tsx
+ */
+.step1-field .signup-fields {
+  margin-top: 1.1rem;
+}
