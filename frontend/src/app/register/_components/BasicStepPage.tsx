@@ -1,6 +1,8 @@
-import { Container, Grid2, TextField } from "@mui/material";
+import { Alert, Container, Grid2, TextField } from "@mui/material";
 import { RegistrationDTO } from "@/app/register/registration_dto";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { error } from "console";
 
 interface BasicStepPageProps {
     signUpForm: RegistrationDTO;
@@ -9,25 +11,49 @@ interface BasicStepPageProps {
 
 export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPageProps) {
     const [localData, setLocalData] = useState<RegistrationDTO | null>(null); // Initialize with null
+    const [validationMessage, setValidationMessage] = useState("");
 
     useEffect(() => {
         // Ensure data is set only after the component has mounted on the client
         setLocalData(signUpForm);
-    }, [signUpForm]); // Update localData when signUpForm changes
+    }, [signUpForm]); 
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target; // Use name attribute for key
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, validationMessage } = e.target; // Use name attribute for key
+        const { valid } = e.target.validity;
+        setValidationMessage(validationMessage);
         if (localData) {
+            let miniLocalData = localData;
+
+            if(valid && value) {
+                // Peform remote fetching to verify the email
+                miniLocalData.isEmailValid = true;
+                if (name == "email") {
+                    axios.get(`https://localhost:7044/api/authenticate/verify?Field=Email&Value=${value}`)
+                        .then((res) => {
+                            console.log(res);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                }
+
+            } else {
+                miniLocalData.isEmailValid = false;
+            }
+            
+            console.log(miniLocalData);
             setLocalData((prevData) => ({
-                ...prevData!,
+                ...miniLocalData!,
                 [name]: value,
             }));
-            onDataChanged({ ...localData!, [name]: value }); // Call onDataChanged to propagate the change
+            onDataChanged({ ...localData!, [name]: value });
         }
     };
 
     if (!localData) {
-        return <div>Loading...</div>; // Prevent rendering until localData is available
+        // Prevent rendering until localData is available
+        return <div>Loading...</div>; 
     }
 
     return (
@@ -46,7 +72,15 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
                             name="email" // Add name attribute to match the state property
                             onChange={handleChange}
                             value={localData.email}
+                            required
                         />
+                        {
+                            validationMessage && (
+                                <Alert severity="error" sx={{
+                                    marginY: 1
+                                }}>{validationMessage}</Alert>
+                            )
+                        }
                         <TextField
                             id="password"
                             className="signup-fields"
@@ -56,6 +90,7 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
                             name="password" // Add name attribute to match the state property
                             value={localData.password}
                             onChange={handleChange}
+                            required
                         />
                     </div>
                 </Grid2>

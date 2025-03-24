@@ -126,6 +126,38 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
         return BadRequest(ModelState);
     }
 
+    [HttpGet("verify")]
+    // Endpoint request: .../api/authenticate/verify?Field=Email&Value=YESSIR
+    public async Task<IActionResult> Verify([FromQuery] VerifyField verifyFields)
+    {
+        if (!verifyFields.Field.Equals("Email") && !verifyFields.Field.Equals("Username"))
+        {
+            ModelState.AddModelError("error", "Missing email or username as a search query.");
+            return BadRequest(ModelState);
+        }
+
+        bool isValid = false;
+
+        if (verifyFields.Field.Equals("Email"))
+        {
+            User? user = await userManager.FindByEmailAsync(verifyFields.Value);
+            if(user == null)
+            {
+                isValid = true;
+            }
+        } else
+        {
+            User? user = await userManager.FindByNameAsync(verifyFields.Value);
+            if( user == null )
+            {
+                isValid = true;
+            }
+        }
+
+
+        return Ok(new { isValid });
+    }
+
 
     private string? GenerateToken(string email, string userId)
     {

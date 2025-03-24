@@ -5,4 +5,6 @@ export type RegistrationDTO = {
     password: string;
     avatar_url?: string;
     customization_options?: string;
+    isUsernameValid: boolean;
+    isEmailValid: boolean;
 }
