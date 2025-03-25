@@ -1,4 +1,4 @@
-import { Alert, Container, debounce, Grid2, TextField } from "@mui/material";
+import { Alert, Box, Container, debounce, Grid2, TextField } from "@mui/material";
 import { RegistrationDTO } from "@/app/register/registration_dto";
 import { useEffect, useState, useRef } from "react";
 import axios, { CancelTokenSource } from "axios";
@@ -8,7 +8,7 @@ interface BasicStepPageProps {
     onDataChanged: (data: RegistrationDTO) => void;
 }
 
-export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPageProps) {
+export default function Step2Registration({ signUpForm, onDataChanged }: BasicStepPageProps) {
     const [localData, setLocalData] = useState<RegistrationDTO | null>(null); // Initialize with null
     const [validationMessage, setValidationMessage] = useState("");
      const cancelTokenRef = useRef<CancelTokenSource | null>(null);
@@ -18,7 +18,7 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
         setLocalData(signUpForm);
     }, [signUpForm]); 
 
-    const debouncedVerifyEmail = debounce(async (value: string, updateLocalData: (isValid: boolean | null) => void) => {
+    const debouncedUsername = debounce(async (value: string, updateLocalData: (isValid: boolean | null) => void) => {
         if (cancelTokenRef.current) {
             cancelTokenRef.current.cancel("Operation canceled due to new request.");
         }
@@ -26,11 +26,11 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
 
         try {
             const res = await axios.get(
-                `https://localhost:7044/api/authenticate/verify?Field=Email&Value=${value}`,
+                `https://localhost:7044/api/authenticate/verify?Field=Username&Value=${value}`,
                 { cancelToken: cancelTokenRef.current.token }
             );
-            console.log(localData);
-            updateLocalData(res.data.isValid);
+            console.log(res.data.isValid);
+            updateLocalData(res.data.isValid); 
         } catch (error) {
             if (axios.isCancel(error)) {
                 console.log("Request canceled", error.message);
@@ -39,35 +39,37 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
             }
             updateLocalData(null); 
         }
-    }, 1000);
+    }, 2000);
 
     const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, validationMessage } = e.target; // Use name attribute for key
-        const { valid } = e.target.validity;
+        
         setValidationMessage(validationMessage);
         if (localData) {
             let miniLocalData = localData;
-            
-            if(name == "email") {
-                localData.isEmailValid = false;
-                if(valid && value) {
-                    debouncedVerifyEmail(value, (isValid) => {
+
+            if(name == "username") {
+                localData.isUsernameValid = false;
+                if(value) {
+                    debouncedUsername(value.toUpperCase(), (isValid) => {
                         setLocalData((prevData) => ({
                             ...prevData!,
-                            isEmailValid: isValid ?? false,
+                            isUsernameValid: isValid ?? false,
                         }));
                         setValidationMessage(
-                            isValid ? "Email valid" : "Email has already been taken."
+                            isValid ? "Username valid" : `The username "${value}" has been taken.`
                         );
                     });
                 } 
             }
-       
+            
+            
             setLocalData((prevData) => ({
                 ...miniLocalData!,
                 [name]: value,
             }));
-            onDataChanged({ ...localData!, [name]: value });
+
+            onDataChanged({ ...localData!, [name]: value.toUpperCase() });
             console.log(localData);
         }
     };
@@ -82,44 +84,46 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
             <Grid2 container spacing={1}>
                 <Grid2 size={{ xs: 12, md: 4 }}>
                     <h1 style={{ textAlign: "center" }}>Balance Your Universe, One Day at a Time!</h1>
-                    <h3 style={{ textAlign: "center" }}>Sign up now!</h3>
+                    <h3 style={{ textAlign: "center" }}>Continue your journey here...</h3>
                     <div className={"step1-field"}>
-                        <TextField
-                            id="email"
-                            className="signup-fields"
-                            label="Email"
-                            type="email"
-                            fullWidth
-                            name="email" // Add name attribute to match the state property
-                            onChange={handleChange}
-                            value={localData.email}
-                            required
-                        />
-                        {
-                            validationMessage && validationMessage != "Email valid" && (
-                                <Alert severity="error" sx={{
-                                    marginY: 1
-                                }}>{validationMessage}</Alert>
-                            )
-                        } 
-                        {
-                            validationMessage == "Email valid" && (
-                                <Alert severity="success" sx={{
-                                    marginY: 1
-                                }}>Email is valid</Alert>
-                            )
-                        }
-                        <TextField
-                            id="password"
-                            className="signup-fields"
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            name="password" // Add name attribute to match the state property
-                            value={localData.password}
-                            onChange={handleChange}
-                            required
-                        />
+                        <Box component="form">
+                            <TextField
+                                id="name"
+                                className="signup-fields"
+                                label="Name"
+                                fullWidth
+                                name="name" // Add name attribute to match the state property
+                                onChange={handleChange}
+                                value={localData.name}
+                                required
+                                helperText="Enter your first name."
+                            />
+                            <TextField
+                                id="username"
+                                className="signup-fields"
+                                label="Username"
+                                fullWidth
+                                name="username" // Add name attribute to match the state property
+                                onChange={handleChange}
+                                value={localData.username}
+                                required
+                                helperText="Enter a username"
+                            />
+                            {
+                                validationMessage && validationMessage != "Username valid" && (
+                                    <Alert severity="error" sx={{
+                                        marginY: 1
+                                    }}>{validationMessage}</Alert>
+                                )
+                            } 
+                            {
+                                validationMessage == "Username valid" && (
+                                    <Alert severity="success" sx={{
+                                        marginY: 1
+                                    }}>Username is not taken</Alert>
+                                )
+                            }
+                        </Box>
                     </div>
                 </Grid2>
                 <Grid2 size={{ xs: 0, md: 8 }}>

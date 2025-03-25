@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import BasicStepPage from "@/app/register/_components/BasicStepPage";
 import {RegistrationDTO} from "@/app/register/registration_dto";
+import Step2Registration from "./Step2RegisterPage";
 
 const steps = ['Basic', "Personal", "Verify"];
 
@@ -30,7 +31,7 @@ export default function RegistrationStepper() {
 
         if(activeStep == 0 && signUp.isEmailValid && signUp.password) {
             canMoveOn = true;
-        } else if(activeStep == 1 && signUp.isUsernameValid) {
+        } else if(activeStep == 1 && signUp.isUsernameValid && signUp.name) {
             canMoveOn = true;
         }
         
@@ -79,7 +80,11 @@ export default function RegistrationStepper() {
                         activeStep == 0 ? (
                             <BasicStepPage signUpForm={signUp} onDataChanged={handleSignUpForm}/>
                         ) : (
-                            <h1>ANOTHER </h1>
+                            activeStep == 1 ? (
+                                <Step2Registration signUpForm={signUp} onDataChanged={handleSignUpForm}/>
+                            ) : (
+                                <h1>FINISH UP EVERYTHING</h1>
+                            )
                         )
                     }
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
