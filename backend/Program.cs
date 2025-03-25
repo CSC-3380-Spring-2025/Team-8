@@ -28,6 +28,8 @@ string? issuer = Env.GetString("JWTCONFIG_VALID_ISSUER") ??
 string audience = Env.GetString("JWTCONFIG_VALID_AUDIENCE") ??
                     throw new Exception("Missing the audience key for authentication purposes.");
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddControllers();
@@ -70,6 +72,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 // app.UseHttpLogging();
 
@@ -80,6 +94,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 // Turn the auth related resources
 app.UseAuthentication();
