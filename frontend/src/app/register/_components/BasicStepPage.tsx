@@ -60,7 +60,7 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
         <>
             <Grid2 container spacing={1}>
                 <Grid2 size={{ xs: 12, md: 4 }}>
-                    <h1 style={{ textAlign: "center" }}>Defeat the Black Hole of Deadlines!</h1>
+                    <h1 style={{ textAlign: "center" }}>Balance Your Universe, One Day at a Time!</h1>
                     <h3 style={{ textAlign: "center" }}>Sign up now!</h3>
                     <div className={"step1-field"}>
                         <TextField
