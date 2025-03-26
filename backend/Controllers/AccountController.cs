@@ -19,7 +19,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
 {
 
     [HttpPost("signup")]
-    public async Task<IActionResult> Register(RegistrationDto registrationDto)
+    public async Task<IActionResult> Register([FromForm] RegistrationDto registrationDto)
     {
         TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
         if (ModelState.IsValid)
