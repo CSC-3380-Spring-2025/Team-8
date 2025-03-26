@@ -26,7 +26,7 @@ export default function Step2Registration({ signUpForm, onDataChanged }: BasicSt
 
         try {
             const res = await axios.get(
-                `https://localhost:7044/api/authenticate/verify?Field=Username&Value=${value}`,
+                `https://localhost:7044/api/authenticate/verify?Field=Username&Value=${value.toUpperCase()}`,
                 { cancelToken: cancelTokenRef.current.token }
             );
             console.log(res.data.isValid);
@@ -69,7 +69,7 @@ export default function Step2Registration({ signUpForm, onDataChanged }: BasicSt
                 [name]: value,
             }));
 
-            onDataChanged({ ...localData!, [name]: value.toUpperCase() });
+            onDataChanged({ ...localData!, [name]: value });
             console.log(localData);
         }
     };

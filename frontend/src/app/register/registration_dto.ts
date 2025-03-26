@@ -8,3 +8,8 @@ export type RegistrationDTO = {
     isUsernameValid: boolean;
     isEmailValid: boolean;
 }
+
+export type BadSignupRequest = {
+    passwordValidationError?: [string],
+    error: [string]
+}

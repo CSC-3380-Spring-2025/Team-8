@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { Avatar, Badge } from "@mui/material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setIsAuthenticated(!!token);
+  }, []);
 
     return (
         <nav>
           <div className="logo">
-              <img src="studyverselogo.png" alt={"Image representing Study Verse logo."}/>
+                <Link href={"/"}>
+                    <img src="studyverselogo.png" alt={"Image representing Study Verse logo."}/>
+                </Link>
           </div>
             <div className="menu" onClick={() => setMenuOpen(!menuOpen)}>
                 <span></span>
@@ -16,17 +27,33 @@ const Navbar = () => {
                 <span></span>
             </div>
             <ul className={menuOpen ? "open": ""}>
-                {
+                 {isAuthenticated ? (
                     <>
                         <li>
-                            <a href="/register" className={"emphasized-btn"}>Sign Up</a>
+                            <Link href="/dashboard" className="nav-link">Dashboard</Link>
                         </li>
                         <li>
-                            <a href="/login"className={"emphasized-btn"}>Login</a>
+                            <Link href="/friends" className="nav-link">Friends</Link>
+                        </li>
+                        <li>
+                            <Badge badgeContent={3} color="error">
+                                <NotificationsIcon />
+                            </Badge>
+                        </li>
+                        <li>
+                            <Avatar alt="User Avatar" src="/user-avatar.png" />
                         </li>
                     </>
-                }
-
+                    ) : (
+                    <>
+                        <li>
+                            <Link href="/register" className="emphasized-btn">Sign Up</Link>
+                        </li>
+                        <li>
+                            <Link href="/login" className="emphasized-btn">Login</Link>
+                        </li>
+                    </>
+                    )}
             </ul>
         </nav>
     );

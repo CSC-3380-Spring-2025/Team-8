@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -20,6 +21,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
     [HttpPost("signup")]
     public async Task<IActionResult> Register(RegistrationDto registrationDto)
     {
+        TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
         if (ModelState.IsValid)
         {
             // This code verifies the email and username have not been taken.
@@ -41,7 +43,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             {
                 UserName = registrationDto.UserName,
                 Email = registrationDto.Email,
-                Name = registrationDto.Name,
+                Name = myTI.ToTitleCase(registrationDto.Name),
                 Avatar_Url = registrationDto.Avatar_Url,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
@@ -141,14 +143,15 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
         if (verifyFields.Field.Equals("Email"))
         {
             User? user = await userManager.FindByEmailAsync(verifyFields.Value);
-            if(user == null)
+            if (user == null)
             {
                 isValid = true;
             }
-        } else
+        }
+        else
         {
             User? user = await userManager.FindByNameAsync(verifyFields.Value);
-            if( user == null )
+            if (user == null)
             {
                 isValid = true;
             }

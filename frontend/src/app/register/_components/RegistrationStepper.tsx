@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -6,13 +6,18 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import BasicStepPage from "@/app/register/_components/BasicStepPage";
-import {RegistrationDTO} from "@/app/register/registration_dto";
+import {BadSignupRequest, RegistrationDTO} from "@/app/register/registration_dto";
 import Step2Registration from "./Step2RegisterPage";
+import VerificationPage from "./VerificationPage";
+import { Alert } from "@mui/material";
+import axios from "axios";
+import { useRouter } from "next/router";
 
-const steps = ['Basic', "Personal", "Verify"];
+const steps = ['Basic Information', "Personal Information", "Verify"];
 
 export default function RegistrationStepper() {
     const [activeStep, setActiveStep] = useState(0);
+    const [submitError, setSubmitError] = useState("");
     const [signUp, setSignUp] = useState<RegistrationDTO>({
         email: "",
         password: "",
@@ -26,20 +31,81 @@ export default function RegistrationStepper() {
         setSignUp(signUp);
     }
 
-    const handleNext = () => {
-        let canMoveOn = false;
+    const toFormData = (data: RegistrationDTO): FormData => {
+        const formData = new FormData();
 
-        if(activeStep == 0 && signUp.isEmailValid && signUp.password) {
-            canMoveOn = true;
-        } else if(activeStep == 1 && signUp.isUsernameValid && signUp.name) {
-            canMoveOn = true;
-        }
-        
-        if(canMoveOn) {
-            setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        }
+        // Add only the required fields (excluding isUsernameValid & isEmailValid)
+        Object.entries(data).forEach(([key, value]) => {
+            if (key !== "isUsernameValid" && key !== "isEmailValid" && value !== undefined) {
+                formData.append(key, String(value));
+            }
+        });
 
-        console.log("The step is: " + activeStep);
+        return formData;
+    };
+
+    const handleNext = async () => {
+
+        if(activeStep === steps.length - 1) {
+            // Handle submission
+            await axios.post("https://localhost:7044/api/authenticate/signup", 
+                toFormData(signUp),
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+            )
+                .then(response => {
+                    let data = response.data;
+                    localStorage.setItem("authToken", data.token);
+
+                    // Navigate to the personal dashboard
+                    const router = useRouter();
+                    router.push("/dashboard");
+                }).catch(error => {
+                    console.log(error);
+
+                    try {
+                        let data: BadSignupRequest = error.response.data;
+                        console.log(data);
+                        let errorText = "They are errors with your submission: \n";
+                        console.log(data.passwordValidationError);
+                        if(data.passwordValidationError) {
+                            for (let i = 0; i < data.passwordValidationError?.length; i++) {
+                                errorText += `\t ${data.passwordValidationError[i]} \n`;
+                                console.log("LOOPING")
+                            }
+                        }
+                        if(data.error) {
+                            for (let i = 0; i < data.error.length; i++) {
+                                errorText += `\t ${data.error[i]}`;
+                            }
+                        }
+                        setSubmitError(errorText);
+                        console.log(errorText);
+                    } catch {
+                        setSubmitError("Error when trying to create account try again later.");
+                    }
+                })
+            
+            
+
+        } else {
+            let movingOn = false;
+
+            if(activeStep == 0 && signUp.isEmailValid && signUp.password) {
+                movingOn = true;
+            } else if(activeStep == 1 && signUp.isUsernameValid && signUp.name) {
+                movingOn = true;
+            }
+            
+            if(movingOn) {
+                setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            }
+
+            console.log("The step is: " + activeStep);
+        }
     };
 
     const handleBack = () => {
@@ -83,7 +149,7 @@ export default function RegistrationStepper() {
                             activeStep == 1 ? (
                                 <Step2Registration signUpForm={signUp} onDataChanged={handleSignUpForm}/>
                             ) : (
-                                <h1>FINISH UP EVERYTHING</h1>
+                                <VerificationPage signUpForm={signUp} />
                             )
                         )
                     }
@@ -103,6 +169,15 @@ export default function RegistrationStepper() {
                     </Box>
                 </>
             )}
+            {
+                activeStep == steps.length - 1 && submitError ? (
+                    <Alert severity="error">
+                        {submitError}
+                    </Alert>
+                ) : (
+                    <></>
+                )
+            }
         </Box>
     );
 }

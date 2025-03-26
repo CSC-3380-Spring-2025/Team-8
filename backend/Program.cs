@@ -52,6 +52,17 @@ builder.Services.AddIdentityCore<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Default Password settings.
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 0;
+});
+
 // Configurations on authentication(associating with the Jwt)
 builder.Services.AddAuthentication(options =>
 {
@@ -102,10 +113,10 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/hello", async (context) =>
+app.MapGet("/", async (context) =>
 {
     app.Logger.LogInformation("/hello ENDPOINT");
-    await context.Response.WriteAsync("Hello!");
+    await context.Response.WriteAsync("Welcome to the verse!");
 });
 
 app.MapControllers();
