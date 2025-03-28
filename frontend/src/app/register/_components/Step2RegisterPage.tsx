@@ -10,65 +10,25 @@ interface BasicStepPageProps {
 
 export default function Step2Registration({ signUpForm, onDataChanged }: BasicStepPageProps) {
     const [localData, setLocalData] = useState<RegistrationDTO | null>(null); // Initialize with null
-    const [validationMessage, setValidationMessage] = useState("");
-     const cancelTokenRef = useRef<CancelTokenSource | null>(null);
 
     useEffect(() => {
         // Ensure data is set only after the component has mounted on the client
         setLocalData(signUpForm);
-    }, [signUpForm]); 
-
-    const debouncedUsername = debounce(async (value: string, updateLocalData: (isValid: boolean | null) => void) => {
-        if (cancelTokenRef.current) {
-            cancelTokenRef.current.cancel("Operation canceled due to new request.");
-        }
-        cancelTokenRef.current = axios.CancelToken.source();
-
-        try {
-            const res = await axios.get(
-                `https://localhost:7044/api/authenticate/verify?Field=Username&Value=${value.toUpperCase()}`,
-                { cancelToken: cancelTokenRef.current.token }
-            );
-            console.log(res.data.isValid);
-            updateLocalData(res.data.isValid); 
-        } catch (error) {
-            if (axios.isCancel(error)) {
-                console.log("Request canceled", error.message);
-            } else {
-                console.log(error);
-            }
-            updateLocalData(null); 
-        }
-    }, 2000);
+    }, [signUpForm]);
 
     const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, validationMessage } = e.target; // Use name attribute for key
-        
-        setValidationMessage(validationMessage);
-        if (localData) {
+        const { name, value } = e.target;
+
+        if (localData ) {
             let miniLocalData = localData;
 
-            if(name == "username") {
-                localData.isUsernameValid = false;
-                if(value) {
-                    debouncedUsername(value.toUpperCase(), (isValid) => {
-                        setLocalData((prevData) => ({
-                            ...prevData!,
-                            isUsernameValid: isValid ?? false,
-                        }));
-                        setValidationMessage(
-                            isValid ? "Username valid" : `The username "${value}" has been taken.`
-                        );
-                    });
-                } 
+            if(name == "username" && !value) {
+                miniLocalData.isUsernameValid = false;
+            } else if (name  == "username" && value) {
+                miniLocalData.isUsernameValid = true;
             }
-            
-            
-            setLocalData((prevData) => ({
-                ...miniLocalData!,
-                [name]: value,
-            }));
 
+            console.log(miniLocalData);
             onDataChanged({ ...localData!, [name]: value });
             console.log(localData);
         }
@@ -109,20 +69,6 @@ export default function Step2Registration({ signUpForm, onDataChanged }: BasicSt
                                 required
                                 helperText="Enter a username"
                             />
-                            {
-                                validationMessage && validationMessage != "Username valid" && (
-                                    <Alert severity="error" sx={{
-                                        marginY: 1
-                                    }}>{validationMessage}</Alert>
-                                )
-                            } 
-                            {
-                                validationMessage == "Username valid" && (
-                                    <Alert severity="success" sx={{
-                                        marginY: 1
-                                    }}>Username is not taken</Alert>
-                                )
-                            }
                         </Box>
                     </div>
                 </Grid2>

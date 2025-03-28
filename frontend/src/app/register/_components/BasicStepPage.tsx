@@ -11,35 +11,11 @@ interface BasicStepPageProps {
 export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPageProps) {
     const [localData, setLocalData] = useState<RegistrationDTO | null>(null); // Initialize with null
     const [validationMessage, setValidationMessage] = useState("");
-     const cancelTokenRef = useRef<CancelTokenSource | null>(null);
 
     useEffect(() => {
         // Ensure data is set only after the component has mounted on the client
         setLocalData(signUpForm);
-    }, [signUpForm]); 
-
-    const debouncedVerifyEmail = debounce(async (value: string, updateLocalData: (isValid: boolean | null) => void) => {
-        if (cancelTokenRef.current) {
-            cancelTokenRef.current.cancel("Operation canceled due to new request.");
-        }
-        cancelTokenRef.current = axios.CancelToken.source();
-
-        try {
-            const res = await axios.get(
-                `https://localhost:7044/api/authenticate/verify?Field=Email&Value=${value}`,
-                { cancelToken: cancelTokenRef.current.token }
-            );
-            console.log(localData);
-            updateLocalData(res.data.isValid);
-        } catch (error) {
-            if (axios.isCancel(error)) {
-                console.log("Request canceled", error.message);
-            } else {
-                console.log(error);
-            }
-            updateLocalData(null); 
-        }
-    }, 1000);
+    }, [signUpForm]);
 
     const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, validationMessage } = e.target; // Use name attribute for key
@@ -47,26 +23,18 @@ export default function BasicStepPage({ signUpForm, onDataChanged }: BasicStepPa
         setValidationMessage(validationMessage);
         if (localData) {
             let miniLocalData = localData;
-            
+
             if(name == "email") {
-                localData.isEmailValid = false;
                 if(valid && value) {
-                    debouncedVerifyEmail(value, (isValid) => {
-                        setLocalData((prevData) => ({
-                            ...prevData!,
-                            isEmailValid: isValid ?? false,
-                        }));
-                        setValidationMessage(
-                            isValid ? "Email valid" : "Email has already been taken."
-                        );
-                    });
-                } 
+                    miniLocalData.isEmailValid = true;
+                } else {
+                    miniLocalData.isEmailValid = false;
+                }
             }
-       
-            setLocalData((prevData) => ({
-                ...miniLocalData!,
-                [name]: value,
-            }));
+
+            console.log(miniLocalData);
+
+            setLocalData({...miniLocalData})
             onDataChanged({ ...localData!, [name]: value });
             console.log(localData);
         }
