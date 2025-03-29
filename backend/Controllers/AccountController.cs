@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,8 +19,9 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
 {
 
     [HttpPost("signup")]
-    public async Task<IActionResult> Register(RegistrationDto registrationDto)
+    public async Task<IActionResult> Register([FromForm] RegistrationDto registrationDto)
     {
+        TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
         if (ModelState.IsValid)
         {
             // This code verifies the email and username have not been taken.
@@ -33,7 +35,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             existedUser = await userManager.FindByEmailAsync(registrationDto.Email);
             if (existedUser != null)
             {
-                ModelState.AddModelError("error", "Email is already being registered.");
+                ModelState.AddModelError("error", "Email is already registered.");
                 return BadRequest(ModelState);
             }
 
@@ -41,7 +43,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             {
                 UserName = registrationDto.UserName,
                 Email = registrationDto.Email,
-                Name = registrationDto.Name,
+                Name = myTI.ToTitleCase(registrationDto.Name),
                 Avatar_Url = registrationDto.Avatar_Url,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
@@ -54,11 +56,11 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             // POST/create the object in the database
             var result = await userManager.CreateAsync(user, registrationDto.Password);
 
-            var signedInUser = userManager.FindByEmailAsync(registrationDto.Email);
+            var signedInUser = await userManager.FindByEmailAsync(registrationDto.Email);
 
-            if (result.Succeeded && signedInUser.IsCompleted)
+            if (result.Succeeded && signedInUser != null)
             {
-                var token = GenerateToken(registrationDto.Email, signedInUser.Result.Id);
+                var token = GenerateToken(registrationDto.Email, signedInUser.Id);
                 return Ok(new { token });
             }
 
@@ -124,6 +126,39 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
         }
 
         return BadRequest(ModelState);
+    }
+
+    [HttpGet("verify")]
+    // Endpoint request: .../api/authenticate/verify?Field=Email&Value=YESSIR
+    public async Task<IActionResult> Verify([FromQuery] VerifyField verifyFields)
+    {
+        if (!verifyFields.Field.Equals("Email") && !verifyFields.Field.Equals("Username"))
+        {
+            ModelState.AddModelError("error", "Missing email or username as a search query.");
+            return BadRequest(ModelState);
+        }
+
+        bool isValid = false;
+
+        if (verifyFields.Field.Equals("Email"))
+        {
+            User? user = await userManager.FindByEmailAsync(verifyFields.Value);
+            if (user == null)
+            {
+                isValid = true;
+            }
+        }
+        else
+        {
+            User? user = await userManager.FindByNameAsync(verifyFields.Value);
+            if (user == null)
+            {
+                isValid = true;
+            }
+        }
+
+
+        return Ok(new { isValid });
     }
 
 
