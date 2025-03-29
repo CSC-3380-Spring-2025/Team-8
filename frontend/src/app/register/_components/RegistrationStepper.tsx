@@ -11,7 +11,8 @@ import Step2Registration from "./Step2RegisterPage";
 import VerificationPage from "./VerificationPage";
 import { Alert } from "@mui/material";
 import axios from "axios";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+
 
 const steps = ['Basic Information', "Personal Information", "Verify"];
 
@@ -26,6 +27,7 @@ export default function RegistrationStepper() {
         isEmailValid: false,
         isUsernameValid: false,
     });
+    const router = useRouter();
 
     function handleSignUpForm(signUp: RegistrationDTO) {
         setSignUp(signUp);
@@ -45,7 +47,6 @@ export default function RegistrationStepper() {
     };
 
     const handleNext = async () => {
-
         if(activeStep === steps.length - 1) {
             // Handle submission
             await axios.post("https://localhost:7044/api/authenticate/signup", 
@@ -60,8 +61,7 @@ export default function RegistrationStepper() {
                     let data = response.data;
                     localStorage.setItem("authToken", data.token);
 
-                    // Navigate to the personal dashboard
-                    const router = useRouter();
+                    // Navigate to the personal dashboard page
                     router.push("/dashboard");
                 }).catch(error => {
                     console.log(error);

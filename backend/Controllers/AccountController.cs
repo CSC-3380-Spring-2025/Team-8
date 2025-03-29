@@ -35,7 +35,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             existedUser = await userManager.FindByEmailAsync(registrationDto.Email);
             if (existedUser != null)
             {
-                ModelState.AddModelError("error", "Email is already being registered.");
+                ModelState.AddModelError("error", "Email is already registered.");
                 return BadRequest(ModelState);
             }
 
@@ -56,11 +56,11 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             // POST/create the object in the database
             var result = await userManager.CreateAsync(user, registrationDto.Password);
 
-            var signedInUser = userManager.FindByEmailAsync(registrationDto.Email);
+            var signedInUser = await userManager.FindByEmailAsync(registrationDto.Email);
 
-            if (result.Succeeded && signedInUser.IsCompleted)
+            if (result.Succeeded && signedInUser != null)
             {
-                var token = GenerateToken(registrationDto.Email, signedInUser.Result.Id);
+                var token = GenerateToken(registrationDto.Email, signedInUser.Id);
                 return Ok(new { token });
             }
 
