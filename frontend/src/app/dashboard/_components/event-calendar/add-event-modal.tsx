@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import dayjs from "dayjs";
-import type { CalendarEvent } from "@/app/dashboard/event";
+import type {CalendarEvent} from "@/app/dashboard/_components/event";
 import {Dialog, DialogActions, DialogContent, DialogTitle, Input, TextField} from "@mui/material";
 import {DialogHeader} from "next/dist/client/components/react-dev-overlay/ui/components/dialog";
 import Typography from "@mui/material/Typography";
