@@ -28,6 +28,8 @@ string? issuer = Env.GetString("JWTCONFIG_VALID_ISSUER") ??
 string audience = Env.GetString("JWTCONFIG_VALID_AUDIENCE") ??
                     throw new Exception("Missing the audience key for authentication purposes.");
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddControllers();
@@ -50,6 +52,17 @@ builder.Services.AddIdentityCore<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Default Password settings.
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 0;
+});
+
 // Configurations on authentication(associating with the Jwt)
 builder.Services.AddAuthentication(options =>
 {
@@ -70,6 +83,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 // app.UseHttpLogging();
 
@@ -80,15 +105,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 // Turn the auth related resources
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/hello", async (context) =>
+app.MapGet("/", async (context) =>
 {
     app.Logger.LogInformation("/hello ENDPOINT");
-    await context.Response.WriteAsync("Hello!");
+    await context.Response.WriteAsync("Welcome to the verse!");
 });
 
 app.MapControllers();
