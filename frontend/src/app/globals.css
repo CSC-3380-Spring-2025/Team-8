@@ -87,6 +87,10 @@ nav .menu span {
     display: flex;
   }
 
+  nav #userIconNav {
+    display: none;
+  }
+
   nav {
     flex-direction: column;
     align-items: flex-start;
