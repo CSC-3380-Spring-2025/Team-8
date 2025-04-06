@@ -42,13 +42,7 @@ nav ul li a {
 
 /* Regular anchor tag hover style */
 nav ul li a:not(.active):hover {
-  background-color: #f3f1f1;
-  border: 1px solid black;
-}
-
-/* Emphasized button hover style (no change) */
-nav ul li a.emphasized-btn:hover {
-  background-color: #373636;
+  color: #5f5e5f;
 }
 
 .emphasized-btn {

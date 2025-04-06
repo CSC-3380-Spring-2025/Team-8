@@ -6,6 +6,7 @@ import {Avatar, IconButton, Menu, MenuItem} from "@mui/material";
 import GroupIcon from '@mui/icons-material/Group';
 import {useRouter} from "next/navigation";
 import useWindowDimensions from "@/app/custom_hooks/window_dimensions";
+import {TaskAlt} from "@mui/icons-material";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -57,8 +58,13 @@ const Navbar = () => {
                 {isAuthenticated ? (
                     <>
                         <li>
-                            <Link href="/friends" className="nav-link">
+                            <Link href="/friends" className="nav-link" aria-label={"Friends"}>
                                 {width >= 600 ? <GroupIcon/> : "Friends"}
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href={""} className="nav-link" aria-label={"Tasks"} >
+                                {width >= 600 ? <TaskAlt/> : "Tasks"}
                             </Link>
                         </li>
                     </>
