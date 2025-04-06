@@ -93,12 +93,12 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             // If the user provided a username
             if (!String.IsNullOrEmpty(loginDto.UserName))
             {
-                var user = userManager.FindByNameAsync(loginDto.UserName);
-                if (user.Result != null)
+                var user = await userManager.FindByNameAsync(loginDto.UserName);
+                if (user != null)
                 {
-                    if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
+                    if (await userManager.CheckPasswordAsync(user, loginDto.Password))
                     {
-                        string? token = GenerateToken(user.Result.Email, user.Result.Id);
+                        string? token = GenerateToken(user.Email, user.Id);
                         return Accepted(new { token });
                     }
                 }
@@ -106,21 +106,29 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
 
             if (!String.IsNullOrEmpty(loginDto.Email))
             {
-                var user = userManager.FindByEmailAsync(loginDto.Email);
-                if (user.Result != null)
+                var user = await userManager.FindByEmailAsync(loginDto.Email);
+                if (user != null)
                 {
-                    if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
+                    if (await userManager.CheckPasswordAsync(user, loginDto.Password))
                     {
-                        string? token = GenerateToken(user.Result.Email, user.Result.Id);
+                        string? token = GenerateToken(user.Email, user.Id);
                         return Accepted(new { token });
                     }
+                    else
+                    {
+                        ModelState.AddModelError("error", "No user found with this email and password combo.");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("error", "User not found with this email. Please create an account.");
                 }
             }
 
-            ModelState.AddModelError("error", "Invalid email/username or password.");
+
         }
 
-        if (!isMissingIdentifier)
+        if (isMissingIdentifier)
         {
             ModelState.AddModelError("error", "Missing username or email. Cannot proceed with authentication.");
         }

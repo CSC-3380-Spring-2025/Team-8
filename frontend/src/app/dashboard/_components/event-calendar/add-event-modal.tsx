@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import {useState} from "react"
 import dayjs from "dayjs";
 import type {CalendarEvent} from "@/app/dashboard/_components/event";
 import {Dialog, DialogActions, DialogContent, DialogTitle, Input, TextField} from "@mui/material";
@@ -15,7 +15,7 @@ interface AddEventModalProps {
     onAddEvent: (event: CalendarEvent) => void
 }
 
-export default function AddEventModal({ isOpen, onClose, onAddEvent }: AddEventModalProps) {
+export default function AddEventModal({isOpen, onClose, onAddEvent}: AddEventModalProps) {
     const [title, setTitle] = useState("")
     const [date, setDate] = useState(dayjs().format("YYYY-MM-DD"))
     const [time, setTime] = useState(dayjs().format("HH:mm"))
@@ -70,11 +70,11 @@ export default function AddEventModal({ isOpen, onClose, onAddEvent }: AddEventM
                     </div>
                     <div className="space-y-2">
                         <Typography component="h2">Date</Typography>
-                        <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+                        <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required/>
                     </div>
                     <div className="space-y-2">
                         <Typography component="h2">Time</Typography>
-                        <Input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
+                        <Input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required/>
                     </div>
                     <div className="space-y-2">
                         <Typography component="h2">Description (Optional)</Typography>
