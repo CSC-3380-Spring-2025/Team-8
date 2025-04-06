@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -9,9 +9,9 @@ import BasicStepPage from "@/app/register/_components/BasicStepPage";
 import {BadSignupRequest, RegistrationDTO} from "@/app/register/registration_dto";
 import Step2Registration from "./Step2RegisterPage";
 import VerificationPage from "./VerificationPage";
-import { Alert } from "@mui/material";
+import {Alert} from "@mui/material";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
 
 
 const steps = ['Basic Information', "Personal Information", "Verify"];
@@ -47,9 +47,9 @@ export default function RegistrationStepper() {
     };
 
     const handleNext = async () => {
-        if(activeStep === steps.length - 1) {
+        if (activeStep === steps.length - 1) {
             // Handle submission
-            await axios.post("https://localhost:7044/api/authenticate/signup", 
+            await axios.post("https://localhost:7044/api/authenticate/signup",
                 toFormData(signUp),
                 {
                     headers: {
@@ -71,13 +71,13 @@ export default function RegistrationStepper() {
                         console.log(data);
                         let errorText = "They are errors with your submission: \n";
                         console.log(data.passwordValidationError);
-                        if(data.passwordValidationError) {
+                        if (data.passwordValidationError) {
                             for (let i = 0; i < data.passwordValidationError?.length; i++) {
                                 errorText += `\t ${data.passwordValidationError[i]} \n`;
                                 console.log("LOOPING")
                             }
                         }
-                        if(data.error) {
+                        if (data.error) {
                             for (let i = 0; i < data.error.length; i++) {
                                 errorText += `\t ${data.error[i]}`;
                             }
@@ -88,19 +88,18 @@ export default function RegistrationStepper() {
                         setSubmitError("Error when trying to create account try again later.");
                     }
                 })
-            
-            
+
 
         } else {
             let movingOn = false;
 
-            if(activeStep == 0 && signUp.isEmailValid && signUp.password) {
+            if (activeStep == 0 && signUp.isEmailValid && signUp.password) {
                 movingOn = true;
-            } else if(activeStep == 1 && signUp.isUsernameValid && signUp.name) {
+            } else if (activeStep == 1 && signUp.isUsernameValid && signUp.name) {
                 movingOn = true;
             }
-            
-            if(movingOn) {
+
+            if (movingOn) {
                 setActiveStep((prevActiveStep) => prevActiveStep + 1);
             }
 
@@ -119,7 +118,7 @@ export default function RegistrationStepper() {
     };
 
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{width: '100%'}}>
             <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
                     const stepProps: { completed?: boolean } = {};
@@ -132,11 +131,11 @@ export default function RegistrationStepper() {
             </Stepper>
             {activeStep === steps.length ? (
                 <>
-                    <Typography sx={{ mt: 2, mb: 1 }}>
+                    <Typography sx={{mt: 2, mb: 1}}>
                         Confirm your information.
                     </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                        <Box sx={{ flex: '1 1 auto' }} />
+                    <Box sx={{display: 'flex', flexDirection: 'row', pt: 2}}>
+                        <Box sx={{flex: '1 1 auto'}}/>
                         <Button onClick={handleReset}>Reset</Button>
                     </Box>
                 </>
@@ -149,20 +148,20 @@ export default function RegistrationStepper() {
                             activeStep == 1 ? (
                                 <Step2Registration signUpForm={signUp} onDataChanged={handleSignUpForm}/>
                             ) : (
-                                <VerificationPage signUpForm={signUp} />
+                                <VerificationPage signUpForm={signUp}/>
                             )
                         )
                     }
-                    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                    <Box sx={{display: 'flex', flexDirection: 'row', pt: 2}}>
                         <Button
                             color="inherit"
                             disabled={activeStep === 0}
                             onClick={handleBack}
-                            sx={{ mr: 1 }}
+                            sx={{mr: 1}}
                         >
                             Back
                         </Button>
-                        <Box sx={{ flex: '1 1 auto' }} />
+                        <Box sx={{flex: '1 1 auto'}}/>
                         <Button onClick={handleNext}>
                             {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                         </Button>

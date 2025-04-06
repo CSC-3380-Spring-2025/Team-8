@@ -1,8 +1,7 @@
 "use client"
 
 import type {CalendarEvent} from "@/app/dashboard/event";
-import {Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
-import { Button } from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import {DialogHeader} from "next/dist/client/components/react-dev-overlay/ui/components/dialog";
 
 interface EventDetailsModalProps {
@@ -11,7 +10,7 @@ interface EventDetailsModalProps {
     event: CalendarEvent | null
 }
 
-export default function EventDetailsModal({ isOpen, onClose, event }: EventDetailsModalProps) {
+export default function EventDetailsModal({isOpen, onClose, event}: EventDetailsModalProps) {
     if (!event) return null
 
     return (

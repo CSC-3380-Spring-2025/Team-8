@@ -8,53 +8,53 @@ import {useRouter} from "next/navigation";
 import useWindowDimensions from "@/app/custom_hooks/window_dimensions";
 
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
-  const {height, width} = useWindowDimensions();
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const router = useRouter();
+    const {height, width} = useWindowDimensions();
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    setIsAuthenticated(!!token);
-  }, []);
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        setIsAuthenticated(!!token);
+    }, []);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleMenu = (e: React.MouseEvent<HTMLElement>) => {
-      setAnchorEl(e.currentTarget);
-  }
+    const handleMenu = (e: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(e.currentTarget);
+    }
 
-  const handleClose = () => {
-      setAnchorEl(null);
-  }
+    const handleClose = () => {
+        setAnchorEl(null);
+    }
 
-  const handleSignOut = () => {
-      localStorage.removeItem("authToken");
+    const handleSignOut = () => {
+        localStorage.removeItem("authToken");
 
-      if (!localStorage.getItem("authToken")) {
-          router.push("/");
-      }
-  }
+        if (!localStorage.getItem("authToken")) {
+            router.push("/");
+        }
+    }
 
-  const handleProfileClick = () => {
-      router.push("/profile");
-  }
+    const handleProfileClick = () => {
+        router.push("/profile");
+    }
 
 
     return (
         <nav>
-          <div className="logo">
+            <div className="logo">
                 <Link href={"/"}>
                     <img src="studyverselogo.png" alt={"Image representing Study Verse logo."}/>
                 </Link>
-          </div>
-            <div className="menu" onClick={() => setMenuOpen(!menuOpen)}>
+            </div>
+            <div className="menu" onClick={() => setMenuOpen(!menuOpen)} style={{marginTop: "19px"}}>
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-            <ul className={menuOpen ? "open": ""}>
-                 {isAuthenticated ? (
+            <ul className={menuOpen ? "open" : ""} style={{paddingLeft: "0px"}}>
+                {isAuthenticated ? (
                     <>
                         <li>
                             <Link href="/friends" className="nav-link">
@@ -62,7 +62,7 @@ const Navbar = () => {
                             </Link>
                         </li>
                     </>
-                    ) : (
+                ) : (
                     <>
                         <li>
                             <Link href="/register" className="emphasized-btn">Sign Up</Link>
@@ -71,7 +71,7 @@ const Navbar = () => {
                             <Link href="/login" className="emphasized-btn">Login</Link>
                         </li>
                     </>
-                    )}
+                )}
             </ul>
             {isAuthenticated ? (
                 <div id={"userIconNav"}>
@@ -83,7 +83,7 @@ const Navbar = () => {
                         onClick={handleMenu}
                         color="inherit"
                     >
-                        <Avatar />
+                        <Avatar/>
                     </IconButton>
                     <Menu
                         id="menu-appbar"
