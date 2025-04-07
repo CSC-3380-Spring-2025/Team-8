@@ -7,6 +7,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import {useRouter} from "next/navigation";
 import useWindowDimensions from "@/app/custom_hooks/window_dimensions";
 import {TaskAlt} from "@mui/icons-material";
+import {TimerIcon} from "lucide-react";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -65,6 +66,11 @@ const Navbar = () => {
                         <li>
                             <Link href={""} className="nav-link" aria-label={"Tasks"} >
                                 {width >= 600 ? <TaskAlt/> : "Tasks"}
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href={""} className="nav-link" aria-label={"Tasks"} >
+                                {width >= 600 ? <TimerIcon/> : "Pomodoro Timers"}
                             </Link>
                         </li>
                     </>
