@@ -7,7 +7,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import {useRouter} from "next/navigation";
 import useWindowDimensions from "@/app/custom_hooks/window_dimensions";
 import {TaskAlt} from "@mui/icons-material";
-import {TimerIcon} from "lucide-react";
+import TimerIcon from '@mui/icons-material/Timer';
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
