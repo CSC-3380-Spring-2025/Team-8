@@ -185,8 +185,8 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
                 new Claim(ClaimTypes.NameIdentifier, userId),
                 new Claim(ClaimTypes.Email, email),
             }),
-            // Set the token to expire one day later, will be changed later
-            Expires = DateTime.UtcNow.AddDays(1),
+            // Set the token to expire thirty day later, will be changed later
+            Expires = DateTime.UtcNow.AddDays(30),
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
