@@ -13,11 +13,24 @@ const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
-    const {height, width} = useWindowDimensions();
+    const [width, setWidth] = useState(0);
+    
 
     useEffect(() => {
         const token = localStorage.getItem("authToken");
         setIsAuthenticated(!!token);
+
+        const handleResize = () => {
+          setWidth(window.innerWidth);
+        };
+
+        handleResize(); 
+    
+        window.addEventListener('resize', handleResize);
+    
+        return () => {
+          window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -50,7 +63,7 @@ const Navbar = () => {
                     <img src="studyverselogo.png" alt={"Image representing Study Verse logo."}/>
                 </Link>
             </div>
-            <div className="menu" onClick={() => setMenuOpen(!menuOpen)} style={{marginTop: "19px"}}>
+            <div className="menu" onClick={() => setMenuOpen(!menuOpen)} style={{marginTop: "13px"}}>
                 <span></span>
                 <span></span>
                 <span></span>
