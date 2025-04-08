@@ -77,7 +77,7 @@ const Navbar = () => {
                             </Link>
                         </li>
                         <li>
-                            <Link href={""} className="nav-link" aria-label={"Tasks"} >
+                            <Link href={"/tasks"} className="nav-link" aria-label={"Tasks"} >
                                 {width >= 600 ? <TaskAlt/> : "Tasks"}
                             </Link>
                         </li>

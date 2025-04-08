@@ -1,6 +1,6 @@
 "use client"
 
-import type {CalendarEvent} from "@/app/dashboard/event";
+import type {CalendarEvent} from "@/app/dashboard/_components/event";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import {DialogHeader} from "next/dist/client/components/react-dev-overlay/ui/components/dialog";
 
