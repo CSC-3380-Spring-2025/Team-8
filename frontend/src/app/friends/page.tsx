@@ -4,8 +4,9 @@ import Navbar from "@/app/_global_components/Navbar";
 import { Box, Container, Tab, Tabs } from "@mui/material";
 import { ReactNode, SyntheticEvent, useState } from "react";
 import FriendsStepper from "./components/FriendsStepper";
-import { UserFriendsRes } from "./friendsType";
+import { TaskActivityView, UserFriendsRes } from "./friendsType";
 import GalaxyBoostStepper from "./components/GalaxyBoostStepper";
+import FriendActivityStepper from "./components/FriendActivityStepper";
 
 interface TabPanelProps {
 	children?: ReactNode;
@@ -87,6 +88,39 @@ export default function Page() {
 		},
 	];
 
+	const taskActivityData: TaskActivityView[] = [
+		{
+			username: "astroLuna23",
+			name: "Luna Vega",
+			title: "Finished 'Physics Homework 3'",
+			completedAt: "2025-04-07T15:32:00Z",
+		},
+		{
+			username: "nebulaNova",
+			name: "Nova Lin",
+			title: "Completed 'Biology Lab Report'",
+			completedAt: "2025-04-07T21:14:00Z",
+		},
+		{
+			username: "cosmoChris",
+			name: "Chris Orion",
+			title: "Submitted 'CS Project Proposal'",
+			completedAt: "2025-04-08T09:47:00Z",
+		},
+		{
+			username: "starrySkylar",
+			name: "Skylar Ray",
+			title: "Checked off 'Read Ch. 4 of Psych'",
+			completedAt: "2025-04-08T12:03:00Z",
+		},
+		{
+			username: "rocketRiya",
+			name: "Riya Sol",
+			title: "Wrapped up 'Math Problem Set 6'",
+			completedAt: "2025-04-08T17:58:00Z",
+		},
+	];
+
 	return (
 		<>
 			<Navbar />
@@ -122,7 +156,9 @@ export default function Page() {
 						value={value}
 						index={2}
 					>
-						<h3>YEs</h3>
+						<FriendActivityStepper
+							allRecentActivity={taskActivityData}
+						/>
 					</TabPanel>
 				</Box>
 			</Container>

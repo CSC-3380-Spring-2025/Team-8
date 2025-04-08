@@ -111,6 +111,17 @@ export default function SendGalaxyBoost() {
 		};
 
 		console.log(galaxyBoostPostData);
+
+		// Clear all the data
+		setInputValue("");
+		setSelectedUser(null);
+
+		setGalaxyBoost({
+			reciever_username: "",
+			message: "",
+		});
+
+		e.currentTarget.reset();
 	};
 
 	return (
