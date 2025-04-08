@@ -40,17 +40,18 @@ export default function FriendsStepper({friendsInformation, recentGalaxyBoosts}:
     };
 
     useEffect(() => {
+        // this happens everytime a user everytime we try to queyr for a username to add a fiend
         if (inputValue === '') {
             setOptions([]);
             return;
         }
 
         const timeoutId = setTimeout(() => {
-        setLoading(true);
-        fetchUsernames(inputValue).then((res) => {
-            setOptions(res);
-            setLoading(false);
-        });
+            setLoading(true);
+            fetchUsernames(inputValue).then((res) => {
+                setOptions(res);
+                setLoading(false);
+            });
         }, 300);
 
         return () => clearTimeout(timeoutId);
