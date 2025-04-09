@@ -26,16 +26,6 @@ import dayjs from "dayjs";
 import { s } from "framer-motion/client";
 
 export default function Page() {
-	const [modalOpen, setModalOpen] = useState(false);
-	const [selectedTask, setSelectedTask] = useState<TaskDto>({
-		id: 0,
-		title: "",
-		description: "",
-		isCompleted: false,
-		dueDate: "",
-		priority: 1,
-	});
-
 	const mockEvents: CalendarEventDto[] = [
 		{
 			eventDate: "2025-04-10",
@@ -124,12 +114,31 @@ export default function Page() {
 		},
 	];
 
+	const [modalOpen, setModalOpen] = useState(false);
+	const [selectedTask, setSelectedTask] = useState<TaskDto>({
+		id: 0,
+		title: "",
+		description: "",
+		isCompleted: false,
+		dueDate: "",
+		priority: 1,
+	});
+
+	const [events, setEvents] = useState<CalendarEventDto[]>(mockEvents);
+	const [tasks, setTasks] = useState<TaskDto[]>(mockTasks);
+
 	/*
     Code pertaining to the modal dialog for adding a new task.
     */
 	const handleSaveTask = () => {
-		// Logic to save the task goes here
+		// Preparing to send this to the task
 		console.log("Task saved:", selectedTask);
+
+		// Add the task to the list of tasks (mocked here)
+		mockTasks.push({
+			...selectedTask,
+			id: mockTasks.length + 1, // Assign a new ID
+		});
 
 		// Reset the selected task and close the modal
 		setSelectedTask({
@@ -161,15 +170,15 @@ export default function Page() {
 				>
 					<Grid2 size={{ xs: 12 }}>
 						<h3>Calendar Events</h3>
-						<CalendarComponent initialEvents={mockEvents} />
+						<CalendarComponent initialEvents={events} />
 					</Grid2>
 					<Grid2 size={{ sm: 12, md: 6 }}>
 						<h2>Recent Events</h2>
-						<RecentEventsView initialEvents={mockEvents} />
+						<RecentEventsView initialEvents={events} />
 					</Grid2>
 					<Grid2 size={{ sm: 12, md: 6 }}>
 						<h2>Upcoming Tasks</h2>
-						<RecentTasksView tasks={mockTasks} />
+						<RecentTasksView tasks={tasks} />
 					</Grid2>
 				</Grid2>
 			</Container>
