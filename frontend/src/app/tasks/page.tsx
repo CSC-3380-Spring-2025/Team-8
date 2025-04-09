@@ -24,6 +24,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { s } from "framer-motion/client";
+import TaskListView from "./_components/TaskListView";
 
 export default function Page() {
 	const mockEvents: CalendarEventDto[] = [
@@ -179,6 +180,10 @@ export default function Page() {
 					<Grid2 size={{ sm: 12, md: 6 }}>
 						<h2>Upcoming Tasks</h2>
 						<RecentTasksView tasks={tasks} />
+					</Grid2>
+					<Grid2 size={{ sm: 12 }}>
+						<h2>Recent Tasks</h2>
+						<TaskListView tasks={tasks} />
 					</Grid2>
 				</Grid2>
 			</Container>
