@@ -14,6 +14,7 @@
     "@fullcalendar/react": "^6.1.17",
     "@mui/icons-material": "^6.4.9",
     "@mui/material": "^6.4.8",
+    "@mui/x-date-pickers": "^7.28.3",
     "@tanstack/react-query": "^5.72.0",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",

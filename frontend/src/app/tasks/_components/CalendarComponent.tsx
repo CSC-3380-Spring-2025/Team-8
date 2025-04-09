@@ -4,6 +4,7 @@ import { EventClickArg } from "fullcalendar";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
 	Button,
 	Dialog,
@@ -16,6 +17,9 @@ import {
 import { CalendarEventDto } from "@/app/tasks/taskDtos";
 import { EventInput } from "fullcalendar";
 import { EditCalendar } from "@mui/icons-material";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 interface CalendarComponentProps {
 	initialEvents: CalendarEventDto[];
@@ -108,6 +112,7 @@ export default function CalendarComponent({
 	};
 
 	const handleDeleteEvent = () => {
+		console.log(selectedEvent);
 		if (selectedEvent) {
 			setEvents((prevEvents) =>
 				prevEvents.filter((evt) => evt !== selectedEvent)
@@ -158,15 +163,33 @@ export default function CalendarComponent({
 						}
 						disabled={!isAddMode}
 					/>
-					<TextField
-						margin="dense"
-						label="Date"
-						type="text"
-						fullWidth
-						variant="standard"
-						value={eventForm.eventDate}
-						disabled
-					/>
+					<LocalizationProvider dateAdapter={AdapterDayjs}>
+						<DatePicker
+							label="Date"
+							value={
+								eventForm.eventDate
+									? dayjs(eventForm.eventDate)
+									: null
+							}
+							onChange={(newValue) => {
+								if (newValue) {
+									setEventForm({
+										...eventForm,
+										eventDate: newValue.toISOString(),
+									});
+								}
+							}}
+							disabled={!isAddMode}
+							slotProps={{
+								textField: {
+									margin: "dense",
+									fullWidth: true,
+									variant: "standard",
+								},
+							}}
+						/>
+					</LocalizationProvider>
+
 					<TextField
 						margin="dense"
 						label="Description"
