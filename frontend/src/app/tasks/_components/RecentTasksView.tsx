@@ -15,6 +15,7 @@ export default function RecentTasksView({ tasks }: { tasks: TaskDto[] }) {
 	const [sortedTasks, setSortedTasks] = useState<TaskDto[]>([]);
 
 	useEffect(() => {
+		// this code sorts by the due date and gives us only 5 tasks
 		const sorted = [...tasks]
 			.sort((a, b) => {
 				return dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf();

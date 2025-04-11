@@ -135,6 +135,8 @@ export default function Page() {
 		// Preparing to send this to the task
 		console.log("Task saved:", selectedTask);
 
+		//TODO: you would typically send the task to the backend API
+
 		// Add the task to the list of tasks (mocked here)
 		mockTasks.push({
 			...selectedTask,
