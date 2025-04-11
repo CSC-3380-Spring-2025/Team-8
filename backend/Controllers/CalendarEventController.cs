@@ -10,6 +10,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
+using StudyVerseBackend.Models.CalendarEvents;
+
+
+
 namespace StudyVerseBackend.Controllers
 {
     [Route("api/calendar")]
@@ -56,43 +60,48 @@ namespace StudyVerseBackend.Controllers
             return Ok(calendarEvent);
         }
 
-        //POST: api/calendar (Create a new event)
         [HttpPost]
-        public async Task<ActionResult<CalendarEvent>> CreateEvent(CalendarEvent calendarEvent)
-        {
-            var userId = GetUserIdFromToken();
-            if (userId == null) return Unauthorized("Invalid User Token");
+public async Task<ActionResult<CalendarEvent>> CreateEvent(CalendarEventDto calendarEventDto)
+{
+    var userId = GetUserIdFromToken();
+    if (userId == null) return Unauthorized("Invalid User Token");
 
-            calendarEvent.UserId = userId; // Assign event to logged-in user
-            _context.CalendarEvents.Add(calendarEvent);
-            await _context.SaveChangesAsync();
+    var calendarEvent = new CalendarEvent
+    {
+        UserId = userId,
+        Title = calendarEventDto.Title,
+        Description = calendarEventDto.Description,
+        EventDate = calendarEventDto.EventDate,
+        EventType = calendarEventDto.EventType
+    };
 
-            return CreatedAtAction(nameof(GetEventById), new { id = calendarEvent.EventId }, calendarEvent);
-        }
+    _context.CalendarEvents.Add(calendarEvent);
+    await _context.SaveChangesAsync();
 
-        // PUT: api/calendar/{id} (Update an event)
+    return CreatedAtAction(nameof(GetEventById), new { id = calendarEvent.EventId }, calendarEvent);
+}
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(int id, CalendarEvent calendarEvent)
-        {
-            var userId = GetUserIdFromToken();
-            if (userId == null) return Unauthorized("Invalid User Token");
+public async Task<IActionResult> UpdateEvent(int id, CalendarEventDto calendarEventDto)
+{
+    var userId = GetUserIdFromToken();
+    if (userId == null) return Unauthorized("Invalid User Token");
 
-            if (id != calendarEvent.EventId) return BadRequest("Event ID mismatch");
+    var existingEvent = await _context.CalendarEvents.FindAsync(id);
+    if (existingEvent == null || existingEvent.UserId != userId)
+    {
+        return NotFound("Event not found or unauthorized access.");
+    }
 
-            var existingEvent = await _context.CalendarEvents.FindAsync(id);
-            if (existingEvent == null || existingEvent.UserId != userId)
-            {
-                return NotFound("Event not found or unauthorized access.");
-            }
+    existingEvent.Title = calendarEventDto.Title;
+    existingEvent.Description = calendarEventDto.Description;
+    existingEvent.EventDate = calendarEventDto.EventDate;
+    existingEvent.EventType = calendarEventDto.EventType;
 
-            existingEvent.Title = calendarEvent.Title;
-            existingEvent.Description = calendarEvent.Description;
-            existingEvent.EventDate = calendarEvent.EventDate;
-            existingEvent.EventType = calendarEvent.EventType;
+    await _context.SaveChangesAsync();
+    return NoContent();
+}
 
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
 
         // DELETE: api/calendar/{id} (Delete an event)
         [HttpDelete("{id}")]
