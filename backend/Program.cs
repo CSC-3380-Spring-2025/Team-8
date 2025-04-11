@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load("../.env");
 
 string? connectionString = Env.GetString("DB_CONNECTION_STRING");
+// string? connectionString = Env.GetString("BACKUP_DB_CONNECTION_STRING");
 
 if (string.IsNullOrEmpty(connectionString))
 {
