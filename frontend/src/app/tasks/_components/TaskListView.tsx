@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import {
 	Table,
 	TableBody,
@@ -16,6 +16,7 @@ import {
 	InputLabel,
 	Box,
 	Typography,
+	Button,
 } from "@mui/material";
 import { TaskDto } from "../taskDtos";
 
@@ -25,6 +26,16 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 	const [statusFilter, setStatusFilter] = useState("");
 	const [priorityFilter, setPriorityFilter] = useState("");
 	const [dueDateFilter, setDueDateFilter] = useState("");
+	const [taskList, setTaskList] = useState<TaskDto[]>(tasks);
+
+	useEffect(() => {
+		setTaskList(tasks);
+		console.log(tasks);
+	}, [tasks]);
+
+	useEffect(() => {
+		console.log("Updated taskList:", taskList);
+	}, [taskList]);
 
 	const handleChangePage = (event, newPage: number) => {
 		setPage(newPage);
@@ -35,7 +46,14 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		setPage(0);
 	};
 
-	const filteredTasks = tasks.filter((task) => {
+	const resetFilters = () => {
+		setStatusFilter("");
+		setPriorityFilter("");
+		setDueDateFilter("");
+		setPage(0);
+	};
+
+	const filteredTasks = taskList.filter((task) => {
 		const matchesStatus =
 			statusFilter === "" || task.isCompleted.toString() === statusFilter;
 		const matchesPriority =
@@ -45,6 +63,32 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 			dueDateFilter === "" || task.dueDate === dueDateFilter;
 		return matchesStatus && matchesPriority && matchesDueDate;
 	});
+
+	const handleTaskChange = (taskId: number) => {
+		// Filter for the task with the given ID
+		const updatedTask = taskList.find((task) => task.id === taskId);
+
+		// TODO: this will be where the API call to update the task will be made before updating the local copy
+
+		const updatedTasks = taskList.map((task) => {
+			if (task.id === taskId) {
+				return { ...task, isCompleted: !task.isCompleted };
+			}
+			return task;
+		});
+		setTaskList(updatedTasks);
+	};
+
+	const handleDeleteTask = (taskId: number) => {
+		// Filter for the task with the given ID
+		const deletedTask = taskList.find((task) => task.id === taskId);
+
+		// TODO: this will be where the API call to delete the task will be made before updating the local copy
+
+		// Filter out the task with the given ID
+		const updatedTasks = taskList.filter((task) => task.id !== taskId);
+		setTaskList(updatedTasks);
+	};
 
 	return (
 		<Box
@@ -97,6 +141,15 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 					onChange={(e) => setDueDateFilter(e.target.value)}
 					InputLabelProps={{ shrink: true }}
 				/>
+
+				<Button
+					variant="outlined"
+					color="secondary"
+					onClick={resetFilters}
+					sx={{ alignSelf: "center" }}
+				>
+					Reset Filters
+				</Button>
 			</Box>
 
 			<TableContainer component={Paper}>
@@ -117,11 +170,16 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 								page * rowsPerPage + rowsPerPage
 							)
 							.map((task) => (
-								<TableRow key={task.id}>
+								<TableRow
+									key={task.id}
+									data-id={task.id}
+								>
 									<TableCell>
 										<Checkbox
 											checked={task.isCompleted}
-											disabled
+											onChange={() =>
+												handleTaskChange(task.id)
+											}
 										/>
 									</TableCell>
 									<TableCell>{task.title}</TableCell>
@@ -135,6 +193,18 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 												task.priority - 1
 											]
 										}
+									</TableCell>
+									<TableCell>
+										<Button
+											variant="outlined"
+											color="error"
+											size="small"
+											onClick={() =>
+												handleDeleteTask(task.id)
+											}
+										>
+											Delete
+										</Button>
 									</TableCell>
 								</TableRow>
 							))}
