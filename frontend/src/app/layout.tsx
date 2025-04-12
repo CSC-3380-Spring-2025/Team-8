@@ -13,19 +13,19 @@ const theme = createTheme({
             paper: "#1a1e33", // Slightly lighter card/modal background
         },
         primary: {
-            main: "#e4d9ff", // Soft purple glow
+            main: "#e4d9ff",
         },
         secondary: {
-            main: "#8be9fd", // Light blue accent, like a nebula
+            main: "#8be9fd",
         },
         info: {
-            main: "#bd93f9", // Light violet (cosmic tone)
+            main: "#bd93f9",
         },
         success: {
-            main: "#50fa7b", // Alien green
+            main: "#50fa7b",
         },
         error: {
-            main: "#ff5555", // Warning red
+            main: "#ff5555",
         },
         text: {
             primary: "#eaeaea",
@@ -71,6 +71,13 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     background: "#ffffff"
+                }
+            }
+        },
+        MuiListItemText: {
+            styleOverrides: {
+                root: {
+                    color: "black"
                 }
             }
         }
