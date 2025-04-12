@@ -1,5 +1,10 @@
 "use client";
 
+/*
+Base video for inspiration: https://www.youtube.com/watch?v=CSoZPdhNwjY
+Canva tutoriaL: https://www.youtube.com/watch?v=yq2au9EfeRQ
+ */
+
 import { useEffect, useRef } from "react";
 import { Box, styled } from "@mui/material";
 
