@@ -41,7 +41,7 @@ export default function Step2Registration({signUpForm, onDataChanged}: BasicStep
     return (
         <>
             <Grid2 container spacing={1}>
-                <Grid2 size={{xs: 12, md: 4}}>
+                <Grid2 size={{xs: 12}}>
                     <h1 style={{textAlign: "center"}}>Balance Your Universe, One Day at a Time!</h1>
                     <h3 style={{textAlign: "center"}}>Continue your journey here...</h3>
                     <div className={"step1-field"}>
@@ -70,28 +70,6 @@ export default function Step2Registration({signUpForm, onDataChanged}: BasicStep
                             />
                         </Box>
                     </div>
-                </Grid2>
-                <Grid2 size={{xs: 0, md: 8}}>
-                    <Container sx={{paddingTop: 3}}>
-                        <video
-                            autoPlay={true}
-                            loop={true}
-                            muted={true}
-                            controls={false}
-                            style={{
-                                animation: "fadeIn 0.5s ease-out",
-                                width: "100%",
-                                borderRadius: 15,
-                            }}
-                        >
-                            <source
-                                src={
-                                    "https://studyversestuff.s3.us-east-2.amazonaws.com/183279-870457579_small.mp4"
-                                }
-                                type={"video/mp4"}
-                            />
-                        </video>
-                    </Container>
                 </Grid2>
             </Grid2>
         </>

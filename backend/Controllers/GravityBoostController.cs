@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
+using StudyVerseBackend.Services;
 
 namespace StudyVerseBackend.Controllers
 {
@@ -22,10 +23,10 @@ namespace StudyVerseBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateBoost([FromBody] GravityBoost boost)
+        public async Task<IActionResult> CreateBoost([FromBody] GravityBoosts boost)
         {
             var createdBoost = await _gravityBoostService.CreateBoost(boost);
-            return CreatedAtAction(nameof(GetBoostById), new { id = createdBoost.BoostId }, createdBoost);
+            return CreatedAtAction(nameof(GetBoostById), new { id = createdBoost.Boost_Id }, createdBoost);
         }
 
         [HttpGet]
@@ -44,7 +45,7 @@ namespace StudyVerseBackend.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBoost(int id, [FromBody] GravityBoost boost)
+        public async Task<IActionResult> UpdateBoost(int id, [FromBody] GravityBoosts boost)
         {
             var updatedBoost = await _gravityBoostService.UpdateBoost(id, boost);
             if (updatedBoost == null) return NotFound();
