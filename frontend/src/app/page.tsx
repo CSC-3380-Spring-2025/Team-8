@@ -2,15 +2,16 @@
 
 import Navbar from "./_global_components/Navbar";
 import StarBackground from "./_global_components/StarBackground";
+import {Container} from "@mui/material";
 
 export default function Home() {
 	return (
 		<>
 			<StarBackground />
 			<Navbar />
-			<div>
-				<h1>Hello World</h1>
-			</div>
+			<Container component="main">
+				<h1>Launch Your Productivity Into Orbit.</h1>
+			</Container>
 		</>
 	);
 }

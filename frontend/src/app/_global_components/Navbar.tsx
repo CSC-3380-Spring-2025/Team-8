@@ -55,21 +55,21 @@ const Navbar = () => {
 	};
 
 	return (
-		<nav style={{ opacity: 0.1 }}>
+		<nav>
 			<div className="logo">
-				<Link href={"/"}>
+				<Link href={"/"}  onClick={handleMenu}>
 					<img
 						src="studyverselogo.png"
 						alt={"Image representing Study Verse logo."}
+						style={{paddingLeft: "10px", marginTop: "5px"}}
 					/>
 				</Link>
 			</div>
 			<div
 				className="menu"
 				onClick={() => setMenuOpen(!menuOpen)}
-				style={{ marginTop: "13px" }}
 			>
-				<span></span>
+				<span color={"white"}></span>
 				<span></span>
 				<span></span>
 			</div>
@@ -140,9 +140,8 @@ const Navbar = () => {
 						aria-controls="menu-appbar"
 						aria-haspopup="true"
 						onClick={handleMenu}
-						color="inherit"
 					>
-						<Avatar />
+						<Avatar color={"#c9c9ff"} />
 					</IconButton>
 					<Menu
 						id="menu-appbar"
