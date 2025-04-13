@@ -62,7 +62,7 @@ export default function RegistrationStepper() {
                     localStorage.setItem("authToken", data.token);
 
                     // Navigate to the personal dashboard page
-                    router.push("/dashboard");
+                    router.push("/friends");
                 }).catch(error => {
                     console.log(error);
 
