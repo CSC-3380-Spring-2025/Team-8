@@ -21,7 +21,7 @@ public class ApplicationDbContext
     public DbSet<Friends> Friends { get; set; }
     public DbSet<PomodoroSession> PomodoroSessions { get; set; }
     public DbSet<GravityBoosts> GravityBoosts { get; set; }
-    public DbSet<Task> Tasks { get; set; }
+    public DbSet<Tasks> Tasks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
