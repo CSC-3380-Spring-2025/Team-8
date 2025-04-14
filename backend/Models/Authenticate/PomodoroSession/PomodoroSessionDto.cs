@@ -4,5 +4,5 @@ public class PomodoroSessionDto
 {
     public int SessionId { get; set; }
     public DateTime DueTime { get; set; }
-    public string? Notes { get; set; }
+    public string? Title { get; set; }
 }
