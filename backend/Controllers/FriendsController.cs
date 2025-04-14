@@ -22,7 +22,7 @@ namespace StudyVerseBackend.Controllers
         /* Uses the JWT token to access the ID.
          */
         [HttpPost("request")]
-        public async Task<IActionResult> SendFriendRequest([FromBody] string recipientId)
+        public async Task<IActionResult> SendFriendRequest([FromQuery] string recipientId)
         {
             var requestorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (requestorId == recipientId)
