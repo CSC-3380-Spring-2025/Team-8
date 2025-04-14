@@ -1,6 +1,6 @@
 ﻿namespace StudyVerseBackend.Models.Authenticate.PomodoroSession;
 
-public class PomodoroSession
+public class PomodoroSessionDto
 {
     public int SessionId { get; set; }
     public DateTime StartTime { get; set; }
