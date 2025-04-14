@@ -1,4 +1,4 @@
-﻿namespace StudyVerseBackend.Models.Authenticate
+﻿namespace StudyVerseBackend.Models.Friends
 {
     public class UserFriendRes
     {

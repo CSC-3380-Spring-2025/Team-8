@@ -14,11 +14,16 @@ export type GalaxyBoostRes = {
 	sent_at: string;
 };
 
+export type FriendResponseDto = {
+	RequestorId: string;
+	Accept: boolean;
+};
+
 /*
 Type dealing what it looks like to send a post request to the server
 */
 export type GalaxyBoostPost = {
-	reciever_username: string;
+	reciever_id: string;
 	message: string;
 };
 

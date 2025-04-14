@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Interfaces;
 using StudyVerseBackend.Models.Authenticate;
+using StudyVerseBackend.Models.Friends;
 
 namespace StudyVerseBackend.Controllers;
 
