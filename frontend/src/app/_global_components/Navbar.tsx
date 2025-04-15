@@ -90,7 +90,7 @@ const Navbar = () => {
 						</li>
 						<li>
 							<Link
-								href={""}
+								href={"/tasks"}
 								className="nav-link"
 								aria-label={"Tasks"}
 							>

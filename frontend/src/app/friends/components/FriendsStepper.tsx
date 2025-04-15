@@ -286,7 +286,7 @@ export default function FriendsStepper({
 							/>
 						)}
 					></Autocomplete>
-					<Button onClick={handleAddFriend}>Add Friend</Button>
+					<Button onClick={handleAddFriend} sx={{marginTop: 1}}>Add Friend</Button>
 				</Grid2>
 				<Grid2 size={{ xs: 12, md: 6 }}>
 					<h2>Pending Friends</h2>

@@ -80,6 +80,13 @@ const theme = createTheme({
                     color: "black"
                 }
             }
+        },
+        MuiTooltip: {
+            styleOverrides: {
+                tooltip: {
+                    cursor: "pointer"
+                }
+            }
         }
     },
 });
