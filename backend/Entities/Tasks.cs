@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
-public class Task
+public class Tasks
 {
     public int Id { get; set; }  // Primary key for Task
 

@@ -51,6 +51,7 @@ export default function FriendsStepper({
 	/*
     Dealing with the snackbar for alerting whether a friend was added or not
     */
+
 	const [openSnackbar, setOpenSnackbar] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
@@ -349,3 +350,4 @@ export default function FriendsStepper({
 		</div>
 	);
 }
+
