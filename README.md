@@ -5,6 +5,7 @@ Communications Lead: [Marcus Reese] (MarcusReese1)\
 Git Master: [Ryan Lam] (ryantroy43)\
 Design Lead: [Alanna Reeves-Miller] (areev25)\
 Quality Assurance Tester: Queban Lee (queban)\
+Qualiry Assurance Tester: Tyler (Lynx) Lallande (tylerlallande)
 
 
 # About Our Software
