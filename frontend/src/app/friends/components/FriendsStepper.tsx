@@ -164,7 +164,7 @@ export default function FriendsStepper({friendsInformation, recentGalaxyBoosts}:
                         )}
                     >
                     </Autocomplete>
-                    <Button onClick={handleAddFriend}>Add Friend</Button>
+                    <Button onClick={handleAddFriend} sx={{marginY: 2, width: 210}}>Add Friend</Button>
                 </Grid2>
                 <Grid2 size={{ xs: 12, md: 6 }}>
                     <h2>Pending Friends</h2>
