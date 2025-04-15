@@ -9,7 +9,7 @@ import Button from "@mui/material/Button";
 import {Card, CardContent, CardHeader} from "@mui/material";
 import AddEventModal from "./add-event-modal"
 import EventDetailsModal from "./event-details-modal"
-import type {CalendarEvent} from "@/app/dashboard/event";
+import type {CalendarEvent} from "@/app/dashboard/_components/event";
 import Typography from "@mui/material/Typography";
 
 // Initialize dayjs plugins
