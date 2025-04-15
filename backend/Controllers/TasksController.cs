@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PlannerApi.DTOs;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
 using StudyVerseBackend.Models;
@@ -32,33 +34,90 @@ namespace PlannerApi.Controllers
         }
 
         // GET: api/Task
+        /*
+         * This method should know only return all the tasks a user owns and nothing else.
+         */
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tasks>>> GetAllTasks() {
-            var allTask = await _context.Tasks.ToListAsync();
+            
+            string? userId = GetUserIdFromToken();
+
+            if (userId == null)
+            {
+                return Unauthorized("Missing JWT token in header.");
+            }
+
+            var allTask = await _context.Tasks
+                .Where(task => task.UserId.Equals(userId))
+                .ToListAsync();
 
             return allTask;
         }
 
         // POST: api/task
         [HttpPost]
-        public async Task<ActionResult<Tasks>> PostTask(Tasks taskItem)
+        public async Task<ActionResult<Tasks>> PostTask(TaskDto taskItem)
         {
-            _context.Tasks.Add(taskItem);
-            await _context.SaveChangesAsync();
+            string? userId = GetUserIdFromToken();
 
-            return CreatedAtAction(nameof(GetTask), new { id = taskItem.Id }, taskItem);
+            if (userId == null)
+            {
+                return Unauthorized("Missing JWT token in header.");
+            }
+            
+            // Map the Task DTO to a task object so the database recognizes it
+            Tasks task = new Tasks
+            {
+                UserId = userId,
+                Title = taskItem.Title,
+                Description = taskItem.Description,
+                Priority = taskItem.Priority,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
+            
+            return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
         }
 
         // PUT: api/task/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTask(int id, Tasks taskItem)
+        public async Task<IActionResult> PutTask(int id, TaskDto taskItem)
         {
             if (id != taskItem.Id)
             {
-                return BadRequest();
+                return BadRequest("ID in URL and body do not match.");
             }
 
-            _context.Entry(taskItem).State = EntityState.Modified;
+            string? userId = GetUserIdFromToken();
+            if (userId == null)
+            {
+                return Unauthorized("Missing JWT token in header.");
+            }
+
+            var existingTask = await _context.Tasks
+                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            if (existingTask == null)
+            {
+                return NotFound("Task not found or not authorized.");
+            }
+
+            // Map updated values from DTO to entity
+            existingTask.Title = taskItem.Title;
+            existingTask.Description = taskItem.Description;
+            existingTask.Priority = taskItem.Priority;
+
+            if (existingTask.IsCompleted && !taskItem.IsCompleted)
+            {
+                existingTask.CompletedAt = null;
+            } else if (!existingTask.IsCompleted && taskItem.IsCompleted)
+            {
+                existingTask.CompletedAt = DateTime.Now;
+            }
+            
+            existingTask.IsCompleted = taskItem.IsCompleted;
+            existingTask.DueDate = taskItem.DueDate;
 
             try
             {
@@ -70,14 +129,12 @@ namespace PlannerApi.Controllers
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
         }
+
 
         // DELETE: api/task/5
         [HttpDelete("{id}")]
@@ -98,6 +155,12 @@ namespace PlannerApi.Controllers
         private bool TaskItemExists(int id)
         {
             return _context.Tasks.Any(e => e.Id == id);
+        }
+        
+        // Extract User ID from JWT Token
+        private string? GetUserIdFromToken()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     }
 }
