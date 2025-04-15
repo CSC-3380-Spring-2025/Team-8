@@ -139,6 +139,8 @@ export default function Page() {
 			setCanView(true);
 			return;
 		}
+
+
 	}, []);
 
 	if (!canView) {

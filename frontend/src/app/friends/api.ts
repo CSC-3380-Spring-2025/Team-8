@@ -47,7 +47,9 @@ export const getAllFriends = async (): Promise<UserFriendsRes[]> => {
 
 export const getPendingFriends = async (): Promise<UserFriendsRes[]> => {
 	try {
-		const res = await axios.get(`${BASE_API_URL}/Friends/pending`);
+		const res = await axios.get(`${BASE_API_URL}/Friends/pending`, getAxiosConfig());
+		console.log("Pending friends");
+		console.log(res);
 		return res.data;
 	} catch (error: unknown) {
 		console.log(error);
