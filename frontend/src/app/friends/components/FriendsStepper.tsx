@@ -20,15 +20,24 @@ import {
 	RocketLaunch,
 } from "@mui/icons-material";
 import { SyntheticEvent, useEffect, useState } from "react";
-import { getSearchableUsernames } from "../api";
+import {acceptFriendRequest, addFriends, getSearchableUsernames, ignoreFriendRequest, removeFriend} from "../api";
 
 export default function FriendsStepper({
 	friendsInformation,
 	recentGalaxyBoosts,
+	pendingFriends,
 }: {
 	friendsInformation: UserFriendsRes[];
 	recentGalaxyBoosts: GalaxyBoostRes[];
+	pendingFriends: UserFriendsRes[];
 }) {
+
+	/**
+	 * State props
+	 */
+	const [friends, setFriends] = useState<UserFriendsRes[]>(friendsInformation);
+	const [pending, setPending] = useState<UserFriendsRes[]>(pendingFriends);
+
 	/*
     Dealing with friends input fields and autocomplete
     */
@@ -77,29 +86,82 @@ export default function FriendsStepper({
 	const handleRemoveFriend = (id: string) => {
 		// Logic to remove friend goes here
 		console.log(`Removing friend with id: ${id}`);
+
+		removeFriend(id)
+			.then((res) => {
+				setSnackbarMessage("Removing the friend....");
+				setOpenSnackbar(true);
+				setFriends((prev) => prev.filter((f) => f.id !== id));
+			})
+			.catch((err) => {
+				setSnackbarMessage("Issue removing friend.");
+				setOpenSnackbar(true);
+			})
 	};
 
 	const handleIgnoreFriendRequest = (id: string) => {
 		// api logic to ignore friend request goes here
-		console.log(`Ignoring friend request from id: ${id}`);
+		ignoreFriendRequest(id)
+			.then((res) => {
+				setPending((prev) => prev.filter((p) => p.id !== id));
+				setSnackbarMessage("Ignoring friend request...");
+				setOpenSnackbar(true);
+			})
+			.catch((err) => {
+
+			})
 	};
 
 	const handleAcceptFriendRequest = (id: string) => {
 		// future API Logic to accept friend request goes here
-		console.log(`Accepting friend request from id: ${id}`);
+		acceptFriendRequest(id)
+			.then((res) => {
+				const acceptedFriend = pending.find((p) => p.id === id);
+				if (acceptedFriend) {
+					setFriends((prev) => [...prev, acceptedFriend]);
+					setPending((prev) => prev.filter((p) => p.id !== id));
+				}
+
+				setSnackbarMessage("Accepted friend request");
+				setOpenSnackbar(true);
+			})
+			.catch((err) => {
+				setSnackbarMessage(err.message);
+				setOpenSnackbar(true);
+			})
 	};
 
 	const handleAddFriend = () => {
 		console.log(selectedUser);
 
-		if (selectedUser) {
-			setSnackbarMessage(`Added ${selectedUser.name} as a friend!`);
+		// call the query
+		if (!selectedUser) {
+			setSnackbarMessage("Select a user.");
 			setOpenSnackbar(true);
+
+			return;
 		}
 
-		// this code clears the input field and selected user after adding a friend
-		setSelectedUser(null);
-		setInputValue("");
+		addFriends(selectedUser?.id)
+			.then((res) => {
+				if (selectedUser) {
+					setSnackbarMessage(`Added ${selectedUser.name} as a friend!`);
+					setOpenSnackbar(true);
+				}
+
+				// this code clears the input field and selected user after adding a friend
+				setSelectedUser(null);
+				setInputValue("");
+
+				// update the list
+			})
+			.catch((err) => {
+				console.log(err);
+
+				// Set snackbar
+				setSnackbarMessage("Error adding user. Make sure the user doesn't have the same name as you");
+				setOpenSnackbar(true);
+			})
 	};
 
 	return (
@@ -113,7 +175,7 @@ export default function FriendsStepper({
 					<h2>Friends</h2>
 					{friendsInformation.length === 0 && <p>No friends found</p>}
 					<List>
-						{friendsInformation.map((friend, index) => (
+						{friends.map((friend, index) => (
 							<ListItem
 								key={index}
 								sx={{
@@ -228,7 +290,7 @@ export default function FriendsStepper({
 				<Grid2 size={{ xs: 12, md: 6 }}>
 					<h2>Pending Friends</h2>
 					<List>
-						{friendsInformation.map((friend, index) => (
+						{pending.map((friend, index) => (
 							<ListItem
 								key={index}
 								sx={{
