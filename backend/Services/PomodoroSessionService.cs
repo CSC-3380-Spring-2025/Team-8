@@ -63,4 +63,10 @@ public class PomodoroSessionService
         await _context.SaveChangesAsync();
         return true;
     }
+    public async Task<List<PomodoroSession>> GetAllPomodoroSessions(string userId)
+    {
+        return await _context.PomodoroSessions
+            .Where(session => session.UserId == userId) // Ensure users only see their sessions
+            .ToListAsync();
+    }
 }
