@@ -1,18 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
+using StudyVerseBackend.Models.GalaxyBoost;
 using StudyVerseBackend.Services;
 
 namespace StudyVerseBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GravityBoostController : ControllerBase
     {
         private readonly GravityBoostService _gravityBoostService;
@@ -23,16 +27,31 @@ namespace StudyVerseBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateBoost([FromBody] GravityBoosts boost)
+        public async Task<IActionResult> CreateBoost([FromBody] GalaxyBoostPostDto boost)
         {
-            var createdBoost = await _gravityBoostService.CreateBoost(boost);
+
+            var userId = GetUserIdFromToken();
+
+            if (userId == null) return Unauthorized("Invalid JWT token");
+
+
+            var createdBoost = await _gravityBoostService.SendBoost(userId, boost);
             return CreatedAtAction(nameof(GetBoostById), new { id = createdBoost.Boost_Id }, createdBoost);
         }
 
         [HttpGet]
+        /*
+         * Returns all the boosts that a user has recieved.
+         */
         public async Task<IActionResult> GetAllBoosts()
         {
-            var boosts = await _gravityBoostService.GetAllBoosts();
+
+            var userId = GetUserIdFromToken();
+
+            if (userId == null) return Unauthorized("Invalid JWT token");
+
+
+            var boosts = await _gravityBoostService.GetAllBoosts(userId);
             return Ok(boosts);
         }
 
@@ -58,6 +77,11 @@ namespace StudyVerseBackend.Controllers
             var deleted = await _gravityBoostService.DeleteBoost(id);
             if (!deleted) return NotFound();
             return Ok(new { message = "Gravity Boost deleted successfully" });
+        }
+
+        private string? GetUserIdFromToken()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     }
 }

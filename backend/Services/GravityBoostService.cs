@@ -1,85 +1,77 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
 using StudyVerseBackend.Models.GalaxyBoost;
-using StudyVerseBackend.Services;
 
-namespace StudyVerseBackend.Controllers
+namespace StudyVerseBackend.Services
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GravityBoostController : ControllerBase
+    public class GravityBoostService
     {
-        private readonly GravityBoostService _gravityBoostService;
+        private readonly ApplicationDbContext _context;
 
-        public GravityBoostController(GravityBoostService gravityBoostService)
+        public GravityBoostService(ApplicationDbContext context)
         {
-            _gravityBoostService = gravityBoostService;
+            _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateBoost([FromBody] GalaxyBoostPostDto boost)
+        public async Task<GravityBoosts> CreateBoost(GravityBoosts boost)
         {
-
-            var userId = GetUserIdFromToken();
-
-            if (userId == null) return Unauthorized("Invalid JWT token");
-
-
-            var createdBoost = await _gravityBoostService.SendBoost(userId, boost);
-            return CreatedAtAction(nameof(GetBoostById), new { id = createdBoost.Boost_Id }, createdBoost);
+            _context.GravityBoosts.Add(boost);
+            await _context.SaveChangesAsync();
+            return boost;
         }
 
-        [HttpGet]
-        /*
-         * Returns all the boosts that a user has recieved.
-         */
-        public async Task<IActionResult> GetAllBoosts()
+        public async Task<List<GravityBoosts>> GetAllBoosts(string userId)
         {
-
-            var userId = GetUserIdFromToken();
-
-            if (userId == null) return Unauthorized("Invalid JWT token");
-
-
-            var boosts = await _gravityBoostService.GetAllBoosts(userId);
-            return Ok(boosts);
+            return await _context.GravityBoosts.Where(gb => gb.Receiver_Id == userId).ToListAsync();
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetBoostById(int id)
+        public async Task<GravityBoosts> GetBoostById(int id)
         {
-            var boost = await _gravityBoostService.GetBoostById(id);
-            if (boost == null) return NotFound();
-            return Ok(boost);
+            return await _context.GravityBoosts.FindAsync(id);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBoost(int id, [FromBody] GravityBoosts boost)
+        public async Task<GravityBoosts> UpdateBoost(int id, GravityBoosts updatedBoost)
         {
-            var updatedBoost = await _gravityBoostService.UpdateBoost(id, boost);
-            if (updatedBoost == null) return NotFound();
-            return Ok(updatedBoost);
+            var existing = await _context.GravityBoosts.FindAsync(id);
+            if (existing == null) return null;
+
+            existing.Sender_Id = updatedBoost.Sender_Id;
+            existing.Receiver_Id = updatedBoost.Receiver_Id;
+            existing.Message = updatedBoost.Message;
+            existing.Sent_At = updatedBoost.Sent_At;
+
+            await _context.SaveChangesAsync();
+            return existing;
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBoost(int id)
+        public async Task<GravityBoosts> SendBoost(string userId, GalaxyBoostPostDto galaxyBoostPost)
         {
-            var deleted = await _gravityBoostService.DeleteBoost(id);
-            if (!deleted) return NotFound();
-            return Ok(new { message = "Gravity Boost deleted successfully" });
+            // Make a gravity boost object
+
+            GravityBoosts gb = new GravityBoosts
+            {
+                Sender_Id = userId,
+                Receiver_Id = galaxyBoostPost.receiver_id,
+                Message = galaxyBoostPost.message
+            };
+
+            _context.GravityBoosts.Add(gb);
+
+            await _context.SaveChangesAsync();
+
+            return gb;
         }
 
-        private string? GetUserIdFromToken()
+        public async Task<bool> DeleteBoost(int id)
         {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var boost = await _context.GravityBoosts.FindAsync(id);
+            if (boost == null) return false;
+
+            _context.GravityBoosts.Remove(boost);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
+
