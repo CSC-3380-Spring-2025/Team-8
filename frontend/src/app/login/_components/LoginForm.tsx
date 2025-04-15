@@ -12,6 +12,9 @@ export default function LoginForm() {
     const router = useRouter();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        /**
+         * Responsible for sending the login form to the server.
+         */
         e.preventDefault();
         if(emailError || passwordError)  {
             return;
@@ -35,7 +38,7 @@ export default function LoginForm() {
 
             localStorage.setItem("authToken", data.token);
             // Navigate to the personal dashboard page
-            router.push("/dashboard");
+            router.push("/friends");
         }).catch(error => {
             console.log(error);
 

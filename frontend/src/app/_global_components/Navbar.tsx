@@ -57,19 +57,19 @@ const Navbar = () => {
 	return (
 		<nav>
 			<div className="logo">
-				<Link href={"/"}  onClick={handleMenu}>
+				<Link href={"/"}>
 					<img
 						src="studyverselogo.png"
 						alt={"Image representing Study Verse logo."}
-						style={{paddingLeft: "10px", marginTop: "5px"}}
 					/>
 				</Link>
 			</div>
 			<div
 				className="menu"
 				onClick={() => setMenuOpen(!menuOpen)}
+				style={{ marginTop: "13px" }}
 			>
-				<span color={"white"}></span>
+				<span></span>
 				<span></span>
 				<span></span>
 			</div>
@@ -90,7 +90,7 @@ const Navbar = () => {
 						</li>
 						<li>
 							<Link
-								href={"/tasks"}
+								href={""}
 								className="nav-link"
 								aria-label={"Tasks"}
 							>
@@ -99,7 +99,7 @@ const Navbar = () => {
 						</li>
 						<li>
 							<Link
-								href={""}
+								href={"/pomodoro"}
 								className="nav-link"
 								aria-label={"Tasks"}
 							>
@@ -140,8 +140,9 @@ const Navbar = () => {
 						aria-controls="menu-appbar"
 						aria-haspopup="true"
 						onClick={handleMenu}
+						color="inherit"
 					>
-						<Avatar color={"#c9c9ff"} />
+						<Avatar />
 					</IconButton>
 					<Menu
 						id="menu-appbar"
