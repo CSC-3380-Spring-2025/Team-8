@@ -25,6 +25,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { s } from "framer-motion/client";
 import TaskListView from "./_components/TaskListView";
+import StarBackground from "../_global_components/StarBackground";
 
 export default function Page() {
 	const mockEvents: CalendarEventDto[] = [

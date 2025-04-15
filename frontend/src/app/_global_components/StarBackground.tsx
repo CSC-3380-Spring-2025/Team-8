@@ -38,7 +38,8 @@ export default function StarBackground({
 	maxStarSize = 3,
 	minStarSize = 0.5,
 	speed = 0.2,
-	backgroundColor = "#0a0a1a",
+	// (BACKGROUND COLOR UPDATE)
+	backgroundColor = "rgba(161, 0, 242, 0.719)",
 }: StarBackgroundProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const starsRef = useRef<Star[]>([]);

@@ -38,8 +38,9 @@ namespace PlannerApi.Controllers
          * This method should know only return all the tasks a user owns and nothing else.
          */
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tasks>>> GetAllTasks() {
-            
+        public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
+        {
+
             string? userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -49,6 +50,16 @@ namespace PlannerApi.Controllers
 
             var allTask = await _context.Tasks
                 .Where(task => task.UserId.Equals(userId))
+                .Select(task => new TaskDto
+                {
+                    Id = task.Id,
+                    Description = task.Description,
+                    DueDate = task.DueDate,
+                    IsCompleted = task.IsCompleted,
+                    Title = task.Title,
+                    Priority = task.Priority
+
+                })
                 .ToListAsync();
 
             return allTask;
@@ -64,7 +75,7 @@ namespace PlannerApi.Controllers
             {
                 return Unauthorized("Missing JWT token in header.");
             }
-            
+
             // Map the Task DTO to a task object so the database recognizes it
             Tasks task = new Tasks
             {
@@ -77,7 +88,7 @@ namespace PlannerApi.Controllers
 
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
-            
+
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
         }
 
@@ -111,11 +122,12 @@ namespace PlannerApi.Controllers
             if (existingTask.IsCompleted && !taskItem.IsCompleted)
             {
                 existingTask.CompletedAt = null;
-            } else if (!existingTask.IsCompleted && taskItem.IsCompleted)
+            }
+            else if (!existingTask.IsCompleted && taskItem.IsCompleted)
             {
                 existingTask.CompletedAt = DateTime.Now;
             }
-            
+
             existingTask.IsCompleted = taskItem.IsCompleted;
             existingTask.DueDate = taskItem.DueDate;
 
@@ -156,7 +168,7 @@ namespace PlannerApi.Controllers
         {
             return _context.Tasks.Any(e => e.Id == id);
         }
-        
+
         // Extract User ID from JWT Token
         private string? GetUserIdFromToken()
         {

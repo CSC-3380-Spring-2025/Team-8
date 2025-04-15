@@ -28,6 +28,8 @@ export default function FriendActivityStepper({
 									padding: 2,
 									marginBottom: 1,
 									borderRadius: 2,
+									backgroundColor: "rgba(255, 255, 255, 1)",
+									color: "black",
 								}}
 							>
 								<Avatar>{activity.name.substring(0, 2)}</Avatar>
