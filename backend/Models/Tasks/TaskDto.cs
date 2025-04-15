@@ -8,13 +8,7 @@ namespace PlannerApi.DTOs
         public bool IsCompleted { get; set; }
         public DateTime DueDate { get; set; }
         public int Priority { get; set; }
-    
-     public TaskDto()
-    {
-        Title = string.Empty;
-        Description = string.Empty;
     }
-}
 }
 
 
