@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load("../.env");
 
 string? connectionString = Env.GetString("DB_CONNECTION_STRING");
+// string? connectionString = Env.GetString("BACKUP_DB_CONNECTION_STRING");
 
 if (string.IsNullOrEmpty(connectionString))
 {
@@ -89,7 +90,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.WithOrigins("http://localhost:3000", "http://167.96.175.11:3000")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });

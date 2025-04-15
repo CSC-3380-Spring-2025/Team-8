@@ -13,9 +13,9 @@ export default function VerificationSignup({signUpForm}: VerificationPageProps) 
                 <h3>Verify that all your information looks correct.</h3>
             </Grid2>
             <Grid2 size={12}>
-                <List>
+                <List sx={{backgroundColor: "inherit"}}>
                     <ListItem key={signUpForm.name}>
-                        <ListItemText primary={"First Name"} secondary={signUpForm.name}/>
+                        <ListItemText primary={"First Name"} secondary={signUpForm.name} sx={{backgroundColor: "white"}}/>
                     </ListItem>
                     <ListItem key={signUpForm.email}>
                         <ListItemText primary={"Email"} secondary={signUpForm.email}/>

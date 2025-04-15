@@ -1,15 +1,19 @@
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
 using System.Security.Claims;
 using System.Text;
+using System.Xml.Linq;
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Interfaces;
 using StudyVerseBackend.Models.Authenticate;
+using StudyVerseBackend.Models.Friends;
 
 namespace StudyVerseBackend.Controllers;
 
@@ -167,6 +171,46 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
 
 
         return Ok(new { isValid });
+    }
+
+    [HttpGet("search")]
+    // GET: /api/authenticate/search?username=[username]
+    public async Task<ActionResult<IEnumerable<UserFriendRes>>> SearchByUserName([FromQuery] string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            var allUsers = await userManager.Users
+                .OrderBy(u => u.NormalizedUserName)
+                .Take(5)
+                .Select(u => new UserFriendRes
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Username = u.UserName,
+                    Planet = u.PlanetStatus.ToString(),
+                    AvatarUrl = u.Avatar_Url
+                })
+                .ToListAsync();
+
+            return Ok(allUsers);
+        }
+
+        string normalizedUsername = username.ToUpper();
+
+        var users = await userManager.Users
+            .Where(u => u.NormalizedUserName.StartsWith(normalizedUsername))
+            .Take(5)
+            .Select(u => new UserFriendRes
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Username = u.UserName,
+                Planet = u.PlanetStatus.ToString(),
+                AvatarUrl = u.Avatar_Url
+            })
+            .ToListAsync();
+
+        return Ok(users);
     }
 
 

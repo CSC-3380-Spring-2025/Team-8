@@ -3,11 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Enumerations;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using StudyVerseBackend.Infastructure.Contexts;
+using StudyVerseBackend.Models.Friends;
 
 namespace StudyVerseBackend.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class FriendsController : ControllerBase
     {
@@ -22,9 +25,15 @@ namespace StudyVerseBackend.Controllers
         /* Uses the JWT token to access the ID.
          */
         [HttpPost("request")]
-        public async Task<IActionResult> SendFriendRequest([FromBody] string recipientId)
+        public async Task<IActionResult> SendFriendRequest([FromQuery] string recipientId)
         {
             var requestorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (requestorId is null or "")
+            {
+                return Unauthorized("Missing authentication token");
+            }
+            
             if (requestorId == recipientId)
                 return BadRequest("You cannot send a friend request to yourself.");
 
@@ -56,6 +65,11 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> RespondToRequest([FromBody] FriendResponseDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (userId is null or "")
+            {
+                return Unauthorized("Missing authentication token");
+            }
 
             var request = await _context.Friends.FirstOrDefaultAsync(f =>
                 f.RequestorId == dto.RequestorId && f.RecipientId == userId && f.Status == FriendshipStatus.Pending);
@@ -76,6 +90,11 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> GetPendingRequests()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (userId is null or "")
+            {
+                return Unauthorized("Missing authentication token");
+            }
 
             var requests = await _context.Friends
                 .Where(f => f.RecipientId == userId && f.Status == FriendshipStatus.Pending)
@@ -85,6 +104,52 @@ namespace StudyVerseBackend.Controllers
             return Ok(requests);
         }
 
+        // POST: api/Friends/accept?requestorId={id}
+        [HttpPost("accept")]
+        public async Task<IActionResult> AcceptFriendRequest([FromQuery] string requestorId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("Missing authentication token");
+            }
+
+            var request = await _context.Friends.FirstOrDefaultAsync(f =>
+                f.RequestorId == requestorId && f.RecipientId == userId && f.Status == FriendshipStatus.Pending);
+
+            if (request == null)
+                return NotFound("Friend request not found.");
+
+            request.Status = FriendshipStatus.Accepted;
+            await _context.SaveChangesAsync();
+
+            return Ok("Friend request accepted.");
+        }
+
+        // POST: api/Friends/ignore?recipientID={id}
+        [HttpPost("ignore")]
+        public async Task<IActionResult> IgnoreFriendRequest([FromQuery] string recipientID)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("Missing authentication token");
+            }
+
+            var request = await _context.Friends.FirstOrDefaultAsync(f =>
+                f.RequestorId == recipientID && f.RecipientId == userId && f.Status == FriendshipStatus.Pending);
+
+            if (request == null)
+                return NotFound("Friend request not found.");
+
+            request.Status = FriendshipStatus.Ignored;
+            await _context.SaveChangesAsync();
+
+            return Ok("Friend request ignored.");
+        }
+
         // GET: api/Friends/list
         /* Uses the JWT token to access the ID.
          */
@@ -92,19 +157,30 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> GetFriendsList()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (userId is null or "")
+            {
+                return Unauthorized("Missing authentication token");
+            }
 
-            var friends = await _context.Friends
+            var allFriendsResult = await _context.Friends
                 .Where(f =>
                     (f.RequestorId == userId || f.RecipientId == userId) &&
                     f.Status == FriendshipStatus.Accepted)
                 .Include(f => f.Requestor)
                 .Include(f => f.Recipient)
+                .Select(f => f.RequestorId == userId ? f.Recipient : f.Requestor)
+                .Select(friend => new UserFriendRes
+                {
+                    Id = friend.Id,
+                    Name = friend.Name,
+                    Username = friend.UserName,
+                    Planet = friend.PlanetStatus.ToString(),
+                    AvatarUrl = friend.Avatar_Url
+                })
                 .ToListAsync();
 
-            var result = friends.Select(f =>
-                f.RequestorId == userId ? f.Recipient : f.Requestor);
-
-            return Ok(result);
+            return Ok(allFriendsResult);
         }
 
         // DELETE: api/Friends/remove/{friendId}
@@ -114,6 +190,11 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> RemoveFriend(string friendId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (userId is null or "")
+            {
+                return Unauthorized("Missing authentication token");
+            }
 
             var friendship = await _context.Friends.FirstOrDefaultAsync(f =>
                 (f.RequestorId == userId && f.RecipientId == friendId || f.RequestorId == friendId && f.RecipientId == userId)
