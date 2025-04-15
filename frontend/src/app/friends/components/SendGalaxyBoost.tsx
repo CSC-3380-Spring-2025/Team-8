@@ -16,6 +16,8 @@ import {
 	FormLabel,
 	Button,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { getSearchableUsernames } from "../api";
 
 export default function SendGalaxyBoost() {
 	/*
@@ -32,53 +34,23 @@ export default function SendGalaxyBoost() {
     State dealing with the adding of a component
     */
 	const [galaxyBoostPost, setGalaxyBoost] = useState<GalaxyBoostPost>({
-		reciever_username: "",
+		reciever_id: "",
 		message: "",
 	});
 
 	const fetchUsernames = async (query: string): Promise<UserFriendsRes[]> => {
-		// api request
-		await new Promise((res) => setTimeout(res, 500));
+		console.log("Fetching usernames with query:", query);
+		const data = await getSearchableUsernames(query);
 
-		const dummyFriends: UserFriendsRes[] = [
-			{
-				id: crypto.randomUUID(),
-				name: "NovaKnight",
-				planet: "Mars",
-				username: "nova_knight",
-			},
-			{
-				id: crypto.randomUUID(),
-				name: "StellarRay",
-				planet: "Venus",
-				username: "stellar_ray",
-			},
-			{
-				id: crypto.randomUUID(),
-				name: "CometChaser",
-				planet: "Jupiter",
-				username: "comet_chaser",
-			},
-			{
-				id: crypto.randomUUID(),
-				name: "GalaxyDrifter",
-				planet: "Neptune",
-				username: "galaxy_drifter",
-			},
-			{
-				id: crypto.randomUUID(),
-				name: "RayNova",
-				planet: "Earth",
-				username: "ray_nova",
-			},
-		];
+		if (!data) {
+			return [];
+		}
 
-		return dummyFriends.filter((friend) =>
-			friend.name.toLowerCase().includes(query.toLowerCase())
-		);
+		return data;
 	};
 
 	useEffect(() => {
+		console.log("Input value changed:", inputValue);
 		// this happens everytime a user everytime we try to queyr for a username to add a fiend
 		if (inputValue === "") {
 			setOptions([]);
@@ -91,7 +63,7 @@ export default function SendGalaxyBoost() {
 				setOptions(res);
 				setLoading(false);
 			});
-		}, 300);
+		}, 500);
 
 		return () => clearTimeout(timeoutId);
 	}, [inputValue]);
@@ -106,7 +78,7 @@ export default function SendGalaxyBoost() {
 		if (!selectedUser?.username || !userMessage) return;
 
 		let galaxyBoostPostData: GalaxyBoostPost = {
-			reciever_username: selectedUser?.username,
+			reciever_id: selectedUser?.id,
 			message: userMessage,
 		};
 
@@ -117,7 +89,7 @@ export default function SendGalaxyBoost() {
 		setSelectedUser(null);
 
 		setGalaxyBoost({
-			reciever_username: "",
+			reciever_id: "",
 			message: "",
 		});
 
@@ -137,10 +109,10 @@ export default function SendGalaxyBoost() {
 				<FormLabel htmlFor="reciever_username">Reciever</FormLabel>
 				<Autocomplete
 					options={options}
-					getOptionLabel={(option) => option.name}
+					getOptionLabel={(option) => option.username}
 					filterOptions={(options, { inputValue }) =>
 						options.filter((option) =>
-							option.name
+							option.username
 								.toLowerCase()
 								.includes(inputValue.toLowerCase())
 						)
