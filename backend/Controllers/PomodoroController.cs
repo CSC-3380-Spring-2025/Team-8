@@ -34,6 +34,7 @@ namespace StudyVerseBackend.Controllers
         /*
          * Should return a list length of one if there is a active session, else not one.
          */
+        [HttpGet]
         public async Task<ActionResult<List<PomodoroSessionDto>>> GetActiveSessions()
         {
             var userId = GetUserIdFromToken();
