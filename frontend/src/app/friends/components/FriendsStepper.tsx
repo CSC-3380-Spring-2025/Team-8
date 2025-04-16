@@ -26,7 +26,7 @@ import {
 	getSearchableUsernames,
 	ignoreFriendRequest,
 	removeFriend,
-} from "../api";
+} from "../friendAPIHelpers";
 
 export default function FriendsStepper({
 	friendsInformation,

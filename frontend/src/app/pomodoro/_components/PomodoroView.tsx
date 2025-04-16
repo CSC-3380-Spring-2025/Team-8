@@ -3,6 +3,7 @@ import SpacePomodoroTimer from "./PomodoroTimer";
 import {PomodoroDTO} from "@/app/pomodoro/pomodoroDTO";
 import {useEffect, useState} from "react";
 import dayjs from "dayjs";
+import {getActivePomodoro} from "@/app/pomodoro/pomodoroAPIHelpers";
 
 export default function PomodoroView() {
 
@@ -76,11 +77,20 @@ export default function PomodoroView() {
 
 	useEffect(() => {
 		// This is where the API call is to get the current pomodoro session
-		console.log("Trying to get current s4ession")
+		const fetchCurrentSession = async () => {
+			try {
+				const data = await getActivePomodoro();
 
-
-
-	}, [currentSession]);
+				if(data.length == 0 || data == null) {
+					setCurrentSession(null);
+				}
+				setCurrentSession(data[0]);
+			} catch (error) {
+				console.log(error);
+			}
+		}
+		fetchCurrentSession();
+	}, []);
 
 	useEffect(() => {
 		const prevSessions = fakePomodoroSessions

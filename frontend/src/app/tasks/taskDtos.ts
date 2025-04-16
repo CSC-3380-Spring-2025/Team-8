@@ -1,4 +1,5 @@
 export type CalendarEventDto = {
+    eventId?: number;
     id: number;
     eventDate: string;
     title: string;

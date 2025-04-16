@@ -37,10 +37,12 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		console.log("Updated taskList:", taskList);
 	}, [taskList]);
 
+	//@ts-ignore
 	const handleChangePage = (event, newPage: number) => {
 		setPage(newPage);
 	};
 
+	// @ts-ignore
 	const handleChangeRowsPerPage = (event) => {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0);
@@ -68,7 +70,13 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		// Filter for the task with the given ID
 		const updatedTask = taskList.find((task) => task.id === taskId);
 
-		// TODO: this will be where the API call to update the task will be made before updating the local copy
+		/**
+		 * TODO: Alanna this is where you'll call the API call to update the task
+		 * So whatever you decide to call the method you will need to call it here.
+		 * Note: you may need to update the function signature to async.
+		 *
+		 * The rest of the function should not need to change.
+		 */
 
 		const updatedTasks = taskList.map((task) => {
 			if (task.id === taskId) {
@@ -83,7 +91,15 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		// Filter for the task with the given ID
 		const deletedTask = taskList.find((task) => task.id === taskId);
 
-		// TODO: this will be where the API call to delete the task will be made before updating the local copy
+		/**
+		 * TODO: Alanna this is where you'll call the API call to delete the task
+		 * So whatever you decide to call the method you will need to call it here.
+		 * Note: you may need to update the function signature to async (if need example check out the handleSaveTask in
+		 * /tasks/page.tsx
+		 *
+		 * The rest of the function should not need to change.
+		 */
+
 
 		// Filter out the task with the given ID
 		const updatedTasks = taskList.filter((task) => task.id !== taskId);

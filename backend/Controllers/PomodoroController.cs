@@ -34,15 +34,21 @@ namespace StudyVerseBackend.Controllers
         /*
          * Should return a list length of one if there is a active session, else not one.
          */
-        public async Task<ActionResult<List<PomodoroSession>>> GetActiveSessions()
+        public async Task<ActionResult<List<PomodoroSessionDto>>> GetActiveSessions()
         {
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
             var getAllActiveSessions = await _pomodoroSessionService.GetAllPomodoroSessions(userId);
 
-            IEnumerable<PomodoroSession> allActiveSessions = getAllActiveSessions
-                .Where(pd => pd.FinishingTimeStamp >= DateTime.Now);
+            IEnumerable<PomodoroSessionDto> allActiveSessions = getAllActiveSessions
+                .Where(pd => pd.FinishingTimeStamp >= DateTime.Now)
+                .Select(ps => new PomodoroSessionDto
+                {
+                    SessionId = ps.SessionId,
+                    DueTime = ps.FinishingTimeStamp,
+                    Title = ps.Title ?? ""
+                });
 
             return Ok(allActiveSessions);
         }
@@ -64,9 +70,7 @@ namespace StudyVerseBackend.Controllers
 
         // POST: api/PomodoroSession
         [HttpPost]
-        // POST: api/PomodoroSession
-        [HttpPost]
-        public async Task<ActionResult<PomodoroSession>> CreatePomodoroSession(PomodoroSessionDto sessionDto)
+        public async Task<ActionResult<PomodoroSession>> CreatePomodoroSession(PomodoroSessionPost sessionDto)
         {
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");

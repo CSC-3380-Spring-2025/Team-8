@@ -20,6 +20,8 @@ import { EditCalendar } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import {createCalendarEvent} from "@/app/tasks/api/calendarAPIHelpers";
+import {DateTimePicker} from "@mui/x-date-pickers";
 
 interface CalendarComponentProps {
 	initialEvents: CalendarEventDto[];
@@ -49,6 +51,7 @@ export default function CalendarComponent({
 			extendedProps: {
 				description: event.description,
 				eventType: event.eventType,
+				id: event.id,
 			},
 		}));
 		setEvents(mappedEvents);
@@ -69,12 +72,13 @@ export default function CalendarComponent({
 
 	const handleEventClick = (clickInfo: EventClickArg) => {
 		setEventForm({
-			id: 0,
+			id: clickInfo.event.extendedProps.id,
 			title: clickInfo.event.title,
 			eventDate: clickInfo.event.startStr,
 			description: clickInfo.event.extendedProps.description || "",
 			eventType: clickInfo.event.extendedProps.eventType || "",
 		});
+
 		//@ts-ignore
 		setSelectedEvent(clickInfo.event);
 		setIsAddMode(false); // Read-only mode
@@ -94,25 +98,42 @@ export default function CalendarComponent({
 		setIsAddMode(false);
 	};
 
-	const handleSaveEvent = () => {
+	const handleSaveEvent = async () => {
 		if (!isAddMode) return;
 
-		setEvents((prevEvents) => [
-			...prevEvents,
-			{
-				title: eventForm.title,
-				start: eventForm.eventDate,
-				extendedProps: {
-					description: eventForm.description,
-					eventType: eventForm.eventType,
+		try {
+			console.log("Trying to save: ", eventForm);
+
+			const data = await createCalendarEvent(eventForm);
+			console.log(data);
+
+			setEvents((prevEvents) => [
+				...prevEvents,
+				{
+					title: data.title,
+					start: data.eventDate,
+					extendedProps: {
+						description: data.description,
+						eventType: data.eventType,
+						id: data.eventId,
+					},
 				},
-			},
-		]);
-		handleClose();
+			]);
+			handleClose();
+		} catch (error) {
+			console.log(error);
+			alert("Error saving the calendar event.");
+		}
 	};
 
 	const handleDeleteEvent = () => {
 		console.log(selectedEvent);
+
+		/**
+		 * TODO: Marcus add your await call for deleting the calendar event here
+		 */
+
+
 		if (selectedEvent) {
 			setEvents((prevEvents) =>
 				prevEvents.filter((evt) => evt !== selectedEvent)
@@ -164,7 +185,7 @@ export default function CalendarComponent({
 						disabled={!isAddMode}
 					/>
 					<LocalizationProvider dateAdapter={AdapterDayjs}>
-						<DatePicker
+						<DateTimePicker
 							label="Date"
 							value={
 								eventForm.eventDate
@@ -177,6 +198,7 @@ export default function CalendarComponent({
 										...eventForm,
 										eventDate: newValue.toISOString(),
 									});
+									console.log(newValue.toISOString());
 								}
 							}}
 							disabled={!isAddMode}

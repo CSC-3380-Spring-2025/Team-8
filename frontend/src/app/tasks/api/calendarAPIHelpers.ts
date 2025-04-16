@@ -4,15 +4,16 @@ import axios from "axios";
 import {BASE_API_URL, getAxiosConfig} from "@/app/custom_hooks/authentication";
 import {CalendarEventDto} from "@/app/tasks/taskDtos";
 
-/**
- * Calling the Calendar API
- */
-export const getAllCalendarEvents = async (): Promise<CalendarEventDto[]> => {
+export const createCalendarEvent = async (calendarEventDto: CalendarEventDto): Promise<CalendarEventDto> => {
     try {
-        const res = await axios.get(`${BASE_API_URL}/calendar`, getAxiosConfig())
+        const res = await axios.post(`${BASE_API_URL}/calendar`, calendarEventDto, getAxiosConfig());
         return res.data;
     } catch (error) {
         console.error(error);
         throw error;
     }
 }
+
+/**
+ * Implement the Delete and GET all calendars method here.
+ */

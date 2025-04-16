@@ -17,7 +17,7 @@ import {
 	Button,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { getSearchableUsernames } from "../api";
+import { getSearchableUsernames } from "../friendAPIHelpers";
 
 export default function SendGalaxyBoost() {
 	/*

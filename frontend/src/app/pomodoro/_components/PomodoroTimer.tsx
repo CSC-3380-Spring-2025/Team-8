@@ -44,8 +44,6 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 
 			setSecondsLeft(diffInSeconds > 0 ? diffInSeconds : 0);
 			setIsRunning(diffInSeconds > 0); // start running only if time left
-		} else {
-
 		}
 	}, [pomodoroSession]);
 
@@ -69,6 +67,13 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 	};
 
 	const resetTimer = (): void => {
+		console.log("Resetting timer which the current ID is " + session?.id);
+
+		/**
+		 * TODO: Queban call the method you made that deletes the Pomodoro session and
+		 * pass the session ID to that method, here.
+		 */
+
 		setSecondsLeft(25 * 60);
 		setIsRunning(false);
 	};
@@ -88,8 +93,11 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			// SEND API REQUEST TO UPDATE BACKEND HERE
 			console.log("Pause updating dueTime to:", updatedSession);
 
-			// Send API to update request
-			// fetch(`/api/pomodoro/${updatedSession.id}`, {
+			/**
+			 * TODO: Queban call the method you made that updates the pomodoro session
+			 * in the database.
+			 * Then pass the updatedSession to that method to be updated.
+			 */
 
 			setIsRunning(false);
 		}
@@ -105,13 +113,14 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			dueTime: newDueTime.toISOString(),
 		};
 
-		//TODO: Send that model to the Backend here.
-		console.log(model);
+		/**
+		 TODO: Queban call the method you made that initializes a pomodoro session in the database
+		 * Pass the model above to that method.
+		 */
+
 
 		// Ideally you would return the data from the backend here.
 		setSession({id: 1030, dueTime: newDueTime.toISOString(), title: title, isPaused: false});
-
-
 
 		// start the actual timer.
 		setIsRunning(true);
