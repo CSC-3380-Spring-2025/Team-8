@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import {PomodoroDTO, PomodoroDTOPost} from "@/app/pomodoro/pomodoroDTO";
 import dayjs from "dayjs";
+import {createPomodoro} from "@/app/pomodoro/pomodoroAPIHelpers";
 
 const formatTime = (seconds: number): string => {
 	const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -67,7 +68,7 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 	};
 
 	const resetTimer = (): void => {
-		console.log("Resetting timer which the current ID is " + session?.id);
+		console.log("Resetting timer which the current ID is " + session?.sessionId);
 
 		/**
 		 * TODO: Queban call the method you made that deletes the Pomodoro session and
@@ -104,7 +105,7 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 	};
 
 
-	const handleStart = () => {
+	const handleStart = async () => {
 		// default time is 25 minutes, but add 5 seconds to account for server delay.
 		const newDueTime = dayjs().add(25, 'minutes').add(5, "seconds");
 
@@ -113,17 +114,20 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			dueTime: newDueTime.toISOString(),
 		};
 
-		/**
-		 TODO: Queban call the method you made that initializes a pomodoro session in the database
-		 * Pass the model above to that method.
-		 */
+		try {
+			const data = await createPomodoro(model);
+			console.log("Created pomodoro session:", data);
 
+			// Ideally you would return the data from the backend here.
+			setSession({sessionId: data.sessionId, dueTime: data.dueTime, title: data.title, isPaused: false});
 
-		// Ideally you would return the data from the backend here.
-		setSession({id: 1030, dueTime: newDueTime.toISOString(), title: title, isPaused: false});
+			// start the actual timer.
+			setIsRunning(true);
+		}catch (e) {
+			console.error(e);
+			alert("Error creating pomodoro");
+		}
 
-		// start the actual timer.
-		setIsRunning(true);
 	}
 
 	return (

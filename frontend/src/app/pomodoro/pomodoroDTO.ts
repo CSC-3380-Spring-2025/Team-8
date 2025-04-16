@@ -1,5 +1,5 @@
 export type PomodoroDTO = {
-    id: number;
+    sessionId: number;
     dueTime: string;
     title: string;
     isPaused: boolean;
