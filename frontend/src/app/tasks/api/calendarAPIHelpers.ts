@@ -29,3 +29,15 @@ export const getCalendarEvents = async () => {
 	}
 };
 
+export const deleteCalendarEvent = async (id: number) => {
+	try {
+		const res = await axios.delete(`${BASE_API_URL}/calendar/${id}`, getAxiosConfig());
+		console.log(`Deleted calendar event ${id}`, res.data);
+		return res;
+	} catch (err) {
+		console.error(`Error deleting event ${id}:`, err);
+		throw err;
+	}
+};
+
+
