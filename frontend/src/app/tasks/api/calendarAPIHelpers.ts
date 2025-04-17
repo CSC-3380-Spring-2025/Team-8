@@ -17,3 +17,15 @@ export const createCalendarEvent = async (calendarEventDto: CalendarEventDto): P
 /**
  * Implement the Delete and GET all calendars method here.
  */
+
+export const getCalendarEvents = async () => {
+	try {
+		const res = await axios.get(`${BASE_API_URL}/calendar`, getAxiosConfig());
+		console.log("Calendar events fetched:", res.data);
+		return res.data;
+	} catch (err) {
+		console.error("Error fetching calendar events:", err);
+		throw err;
+	}
+};
+
