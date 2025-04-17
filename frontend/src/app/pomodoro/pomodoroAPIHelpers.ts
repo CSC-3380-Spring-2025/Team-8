@@ -24,3 +24,14 @@ export const createPomodoro = async (pomodoroDto: PomodoroDTOPost): Promise<Pomo
         throw error;
     }
 }
+
+export const  deletePomodoro = async (id: string): Promise<any> => {
+    try {
+        const res:any = await axios.delete(`${BASE_API_URL}?/pomodoroSession/${id}`, getAxiosConfig());
+        console.log("The pomodoroSession was deleted successfully:",res.data);
+        return res;
+    }
+    catch (error) {
+        console.error
+    }
+}
