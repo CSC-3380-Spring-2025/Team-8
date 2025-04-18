@@ -1,14 +1,14 @@
 "use client";
 
 import Navbar from "@/app/_global_components/Navbar";
-import {Box, Container, Tab, Tabs} from "@mui/material";
+import {Box, CircularProgress, Container, Tab, Tabs} from "@mui/material";
 import {ReactNode, SyntheticEvent, useEffect, useState} from "react";
 import FriendsStepper from "./components/FriendsStepper";
 import {TaskActivityView, UserFriendsRes} from "./friendsType";
 import GalaxyBoostStepper from "./components/GalaxyBoostStepper";
 import FriendActivityStepper from "./components/FriendActivityStepper";
 import {useQuery} from "@tanstack/react-query";
-import {getAllFriends, getPendingFriends} from "@/app/friends/friendAPIHelpers";
+import {getAllFriends, getFriendsActivity, getPendingFriends} from "@/app/friends/friendAPIHelpers";
 
 interface TabPanelProps {
     children?: ReactNode;
@@ -38,27 +38,6 @@ export default function Page() {
     const handleTabChange = (e: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
-
-    const dummyFriends: UserFriendsRes[] = [
-        {
-            id: "1a2b3c4d-0001",
-            name: "NovaKnight",
-            planet: "Mars",
-            username: "nova_knight",
-        },
-        {
-            id: "1a2b3c4d-0002",
-            name: "StellarRay",
-            planet: "Venus",
-            username: "stellar_ray",
-        },
-        {
-            id: "1a2b3c4d-0003",
-            name: "CometChaser",
-            planet: "Jupiter",
-            username: "comet_chaser",
-        },
-    ];
 
     const dummyGalaxyBoosts = [
         {
@@ -134,6 +113,11 @@ export default function Page() {
         queryFn: getPendingFriends,
     });
 
+    const {data: recentActivityData, isLoading: isActivityLoading} = useQuery({
+        queryKey: ["viewRecentActivity"],
+        queryFn: getFriendsActivity
+    });
+
     /**
      * TODO: Ryan add your query to get all the galaxy boosts for your call
      * similar to the format above.
@@ -155,7 +139,16 @@ export default function Page() {
         );
     }
 
-    if (!isLoading && !isPendLoading && canView) {
+    if (isLoading || isPendLoading || isActivityLoading) {
+        return (
+            <>
+                <Navbar/>
+                <CircularProgress/>
+            </>
+        );
+    }
+
+    if (!isLoading && !isPendLoading  && !isActivityLoading && canView) {
         return (
             <>
                 <Navbar/>
@@ -197,7 +190,7 @@ export default function Page() {
                             index={2}
                         >
                             <FriendActivityStepper
-                                allRecentActivity={taskActivityData}
+                                allRecentActivity={recentActivityData ? recentActivityData : []}
                             />
                         </TabPanel>
                     </Box>

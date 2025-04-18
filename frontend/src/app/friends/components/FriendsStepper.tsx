@@ -101,7 +101,7 @@ export default function FriendsStepper({
 
 		removeFriend(id)
 			.then((res) => {
-				setSnackbarMessage("Removing the friend....");
+				setSnackbarMessage("Removed said friend.");
 				setOpenSnackbar(true);
 				setFriends((prev) => prev.filter((f) => f.id !== id));
 			})

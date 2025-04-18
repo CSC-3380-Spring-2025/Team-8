@@ -221,8 +221,8 @@ namespace StudyVerseBackend.Controllers
             return Ok("Friend removed.");
         }
 
-        // GET: api/task/friends/activity
-        [HttpGet("friends/recent-completed")]
+        // GET: api/Friends/activity
+        [HttpGet("activity")]
         public async Task<ActionResult<IEnumerable<TaskActivityView>>> GetFriendsRecentCompletedTasks()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
