@@ -126,12 +126,37 @@ export default function CalendarComponent({
 		}
 	};
 
-	const handleDeleteEvent = () => {
-		console.log(selectedEvent);
-
-		/**
+	/**
 		 * TODO: Marcus add your await call for deleting the calendar event here
+		 * 
 		 */
+
+
+	const handleDeleteEvent = async () => {
+		console.log(selectedEvent);
+	
+		if (selectedEvent) {
+			try {
+				// ✅ Marcus: API call to delete the calendar event
+				await deleteCalendarEvent(selectedEvent.extendedProps.id);
+	
+				// ✅ Remove the event from local state after successful deletion
+				setEvents((prevEvents) =>
+					prevEvents.filter((evt) => evt !== selectedEvent)
+				);
+			} catch (error) {
+				console.error("Error deleting calendar event:", error);
+				alert("Failed to delete the event.");
+			}
+		}
+	
+		handleClose();
+	};
+	
+
+		
+
+
 
 
 		if (selectedEvent) {
