@@ -3,9 +3,10 @@
 import Navbar from "@/app/_global_components/Navbar";
 import {Card, CircularProgress, Container, List, ListItem, ListItemText} from "@mui/material";
 import {useQuery} from "@tanstack/react-query";
-import {getCurrentProfile} from "@/app/profile/profileAPIhelpers";
+import {deleteProfile, getCurrentProfile} from "@/app/profile/profileAPIhelpers";
 import AccountSettingsList from "@/app/profile/_components/AccountSettingsList";
 import Button from "@mui/material/Button";
+import {useRouter} from "next/navigation";
 
 export default function Page() {
 
@@ -14,6 +15,7 @@ export default function Page() {
         queryFn: getCurrentProfile
     })
 
+    const router = useRouter();
 
     if (isLoading) {
         return (
@@ -24,6 +26,17 @@ export default function Page() {
                 </Container>
             </>
         );
+    }
+
+    const handleDeleteAccount = async () => {
+        const res = await deleteProfile();
+        if (res.status === 200 || res.status === 201) {
+            router.push("/login");
+        } else {
+            console.error("Failed to delete account");
+
+            alert("Failed to delete account. Try again later.");
+        }
     }
 
     return (
@@ -44,7 +57,7 @@ export default function Page() {
                                 primary={"Delete Account"}
                                 secondary={"This action is irreversible. Please proceed with caution."}
                             />
-                            <Button color={"error"} aria-label={"Delete Account"}>Delete Account</Button>
+                            <Button color={"error"} aria-label={"Delete Account"} onClick={handleDeleteAccount}>Delete Account</Button>
                         </ListItem>
                     </List>
                 </Card>

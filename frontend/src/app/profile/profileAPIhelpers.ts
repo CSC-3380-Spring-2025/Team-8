@@ -1,5 +1,5 @@
 import {ProfileRes} from "@/app/profile/profileTypes";
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import {BASE_API_URL, getAxiosConfig} from "@/app/custom_hooks/authentication";
 
 export const getCurrentProfile = async (): Promise<ProfileRes> => {
@@ -12,7 +12,7 @@ export const getCurrentProfile = async (): Promise<ProfileRes> => {
     }
 }
 
-export const deleteProfile = async (): Promise<void> => {
+export const deleteProfile = async (): Promise<AxiosResponse> => {
     try {
         return await axios.delete(`${BASE_API_URL}/authenticate/delete-account`, getAxiosConfig());
     } catch (error) {
