@@ -212,6 +212,63 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
 
         return Ok(users);
     }
+    
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetCurrentUserProfile()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Missing authentication token");
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var profile = new ProfileResDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Username = user.UserName,
+            Email = user.Email,
+            AvatarUrl = user.Avatar_Url,
+            Planet = user.PlanetStatus.ToString(),
+        };
+
+        return Ok(profile);
+    }
+
+    [HttpDelete("delete-account")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Missing authentication token");
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var result = await userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest("Failed to delete the account.");
+        }
+
+        return Ok("Account deleted successfully.");
+    }
 
 
     private string? GenerateToken(string email, string userId)
