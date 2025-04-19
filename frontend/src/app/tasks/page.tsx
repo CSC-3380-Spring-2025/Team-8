@@ -24,6 +24,8 @@ import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import TaskListView from "./_components/TaskListView";
 import {createTask, getAllTasks} from "@/app/tasks/api/taskAPIHelpers";
+import { getCalendarEvents } from "@/app/tasks/api/calendarAPIHelpers";
+
 
 export default function Page() {
 	const mockEvents: CalendarEventDto[] = [
@@ -87,6 +89,10 @@ export default function Page() {
 				 * TODO: Marcus add your await call for getting all the calendar events here
 				 * then call the state function (aka: setEvents) with the new data,
 				 */
+
+				const calendarData = await getCalendarEvents();
+				setEvents(calendarData);
+
 			} catch (error) {
 				console.error("Error fetching tasks:", error);
 			}
