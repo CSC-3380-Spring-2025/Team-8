@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import {createCalendarEvent} from "@/app/tasks/api/calendarAPIHelpers";
+import { deleteCalendarEvent } from "@/app/tasks/api/calendarAPIHelpers";
 import {DateTimePicker} from "@mui/x-date-pickers";
 
 interface CalendarComponentProps {
@@ -126,12 +127,36 @@ export default function CalendarComponent({
 		}
 	};
 
-	const handleDeleteEvent = () => {
-		console.log(selectedEvent);
-
-		/**
+	/**
 		 * TODO: Marcus add your await call for deleting the calendar event here
+		 * 
 		 */
+
+
+	const handleDeleteEvent = async () => {
+		console.log(selectedEvent);
+	
+		if (selectedEvent) {
+			try {
+				
+				await deleteCalendarEvent(selectedEvent.extendedProps.id);
+	
+				setEvents((prevEvents) =>
+					prevEvents.filter((evt) => evt !== selectedEvent)
+				);
+			} catch (error) {
+				console.error("Error deleting calendar event:", error);
+				alert("Failed to delete the event.");
+			}
+		}
+	
+		handleClose();
+	};
+	
+
+		
+
+
 
 
 		if (selectedEvent) {
