@@ -11,7 +11,12 @@ import {
 } from "@mui/material";
 import {PomodoroDTO, PomodoroDTOPost} from "@/app/pomodoro/pomodoroDTO";
 import dayjs from "dayjs";
-import {createPomodoro} from "@/app/pomodoro/pomodoroAPIHelpers";
+import {
+	createPomodoro,
+	deletePomodoroSession,
+	updatePomodoroSession,
+
+} from "@/app/pomodoro/pomodoroAPIHelpers";
 
 const formatTime = (seconds: number): string => {
 	const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -67,19 +72,22 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 		setTitle(e.target.value);
 	};
 
-	const resetTimer = (): void => {
+	const resetTimer = async (): Promise<void> => {
 		console.log("Resetting timer which the current ID is " + session?.sessionId);
 
-		/**
-		 * TODO: Queban call the method you made that deletes the Pomodoro session and
-		 * pass the session ID to that method, here.
-		 */
-
+if (session?.sessionId) {
+	try {
+		await deletePomodoroSession(session.sessionId);
+		console.log("Session deleted successfully");
+	} catch (error) {
+		console.error("Failed to delete session:", error);
+	}
+}
 		setSecondsLeft(25 * 60);
 		setIsRunning(false);
 	};
 
-	const handlePause = () => {
+	const handlePause = async () => {
 		if (session) {
 			const newDueTime = dayjs().add(secondsLeft, "second").toISOString();
 
@@ -93,12 +101,14 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 
 			// SEND API REQUEST TO UPDATE BACKEND HERE
 			console.log("Pause updating dueTime to:", updatedSession);
+			try {
+				await updatePomodoroSession(updatedSession);
+				console.log("Session successfully updated");
+			}catch (error){
+				console.error("Failed to update session:",error);
+			}
 
-			/**
-			 * TODO: Queban call the method you made that updates the pomodoro session
-			 * in the database.
-			 * Then pass the updatedSession to that method to be updated.
-			 */
+
 
 			setIsRunning(false);
 		}
