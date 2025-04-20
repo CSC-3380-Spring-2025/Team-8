@@ -36,3 +36,14 @@ export const deleteTask = async (taskId: number): Promise<AxiosResponse<any>> =>
         throw error;
     }
 }
+// Updating a task
+export const updateTask = async (taskId: number, taskDto: TaskDto): Promise<TaskDto> => {
+    try {
+        const res = await axios.put(`${BASE_API_URL}/Task/${taskId}`, taskDto, getAxiosConfig());
+        return res.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+

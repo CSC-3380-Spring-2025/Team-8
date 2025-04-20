@@ -1,4 +1,5 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
+import { deleteTask } from "@/app/tasks/api/taskAPIHelpers";
 import {
 	Table,
 	TableBody,
@@ -87,23 +88,17 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		setTaskList(updatedTasks);
 	};
 
-	const handleDeleteTask = (taskId: number) => {
-		// Filter for the task with the given ID
-		const deletedTask = taskList.find((task) => task.id === taskId);
+	const handleDeleteTask = async (taskId: number) => {
+		try {
+			await deleteTask(taskId);
+			console.log(`Task with ID ${taskId} deleted successfully.`);
 
-		/**
-		 * TODO: Alanna this is where you'll call the API call to delete the task
-		 * So whatever you decide to call the method you will need to call it here.
-		 * Note: you may need to update the function signature to async (if need example check out the handleSaveTask in
-		 * /tasks/page.tsx
-		 *
-		 * The rest of the function should not need to change.
-		 */
-
-
-		// Filter out the task with the given ID
-		const updatedTasks = taskList.filter((task) => task.id !== taskId);
-		setTaskList(updatedTasks);
+			// ✅ Move this INSIDE the async function
+			const updatedTasks = taskList.filter((task) => task.id !== taskId);
+			setTaskList(updatedTasks);
+		} catch (error) {
+			console.error("Failed to delete task:", error);
+		}
 	};
 
 	return (
