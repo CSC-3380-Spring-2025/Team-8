@@ -24,3 +24,24 @@ export const createPomodoro = async (pomodoroDto: PomodoroDTOPost): Promise<Pomo
         throw error;
     }
 }
+
+export const  deletePomodoroSession = async (id: string): Promise<any> => {
+    try {
+        const res:any = await axios.delete(`${BASE_API_URL}?/pomodoroSession/${id}`, getAxiosConfig());
+        console.log("The pomodoroSession was deleted successfully:",res.data);
+        return res;
+    }
+    catch (err) {
+        console.error("Error deleting the pomodoroSession:", err);
+    }
+}
+export const updatePomodoroSession = async (updatedSession: PomodoroSession): Promise<void> =>{
+    try {
+        const response = await axios.put(`${BASE_API_URL}/pomodoroSession/${updatedSession.sessionId}`, updatedSession,
+            getAxiosConfig()
+        );
+        console.log("Pomodoro session updated successfully:", response.data);
+    } catch (err) {
+        console.error("Error updating the pomodoro session:",err);
+    }
+}
