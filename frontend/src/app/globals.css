@@ -109,7 +109,7 @@ nav .menu span {
 
   nav ul.open {
     display: flex;
-    padding-left: 0px;
+    padding-left: 0;
   }
 
   nav ul li {
@@ -188,7 +188,7 @@ h3 {
 h4, h5, h6 {
   font-weight: 500;
   color: #b4a7ff;
-
+}
 
 /* Links */
 a {
@@ -254,6 +254,6 @@ FULL CALENDAR STUFF
 }
 
 .fc-event {
-	background-color: inherit;
-	border: none;
+  background-color: inherit;
+  border: none;
 }
