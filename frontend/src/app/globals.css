@@ -158,11 +158,17 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5em;
 }
 
+
 h1 {
-  font-size: 70px;
+  font-size: 2.5rem;
   letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+#landing-page h1 {
+  font-size: 4.5rem; /*edit to make mroe responsive*/
   font-weight: 700;
- text-align: center;
+  text-align: center;
 }
 
 h2 {
@@ -172,6 +178,12 @@ h2 {
 }
 
 h3 {
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+#landing-page h3 {
   font-size: 1.75rem;
   letter-spacing: 0.04em;
   font-weight: 90;
@@ -214,4 +226,18 @@ a:hover {
 #sign-in-btn:hover {
   background: linear-gradient(135deg, #667eea, #764ba2);
   transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+  #landing-page h1 {
+    font-size: 3.5rem; /* Smaller size for small screens */
+  }
+
+  #landing-page h3 {
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+    font-weight: 90;
+    color: #fffcfc;
+    text-align: center;
+  }
 }
