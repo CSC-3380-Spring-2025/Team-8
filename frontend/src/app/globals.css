@@ -159,9 +159,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 70px;
   letter-spacing: 0.08em;
-  font-weight: 800;
+  font-weight: 700;
+ text-align: center;
 }
 
 h2 {
@@ -173,7 +174,9 @@ h2 {
 h3 {
   font-size: 1.75rem;
   letter-spacing: 0.04em;
-  font-weight: 600;
+  font-weight: 90;
+  color: #fffcfc;
+  text-align: center;
 }
 
 h4, h5, h6 {
@@ -191,4 +194,24 @@ a {
 a:hover {
   color: #bd93f9;
   text-shadow: 0 0 8px #8be9fd;
+}
+
+
+#container {
+  text-align: center;
+}
+#sign-in-btn {
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:0.3s, transform 0.2s;
+}
+
+#sign-in-btn:hover {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  transform: scale(1.05);
 }
