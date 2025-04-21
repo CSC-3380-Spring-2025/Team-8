@@ -1,5 +1,5 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
-import {deleteTask, updateTask} from "@/app/tasks/api/taskAPIHelpers";
+import { deleteTask, updateTask } from "@/app/tasks/api/taskAPIHelpers";
 import {
 	Table,
 	TableBody,
@@ -20,6 +20,7 @@ import {
 	Button,
 } from "@mui/material";
 import { TaskDto } from "../taskDtos";
+import dayjs from "dayjs";
 
 export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 	const [page, setPage] = useState(0);
@@ -82,7 +83,7 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 
 		const updatedTasks = taskList.map((task) => {
 			if (task.id === taskId) {
-				return {...task, isCompleted: !task.isCompleted};
+				return { ...task, isCompleted: !task.isCompleted };
 			}
 			return task;
 		});
@@ -197,7 +198,13 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 									<TableCell>
 										{task.description || "-"}
 									</TableCell>
-									<TableCell>{task.dueDate}</TableCell>
+									<TableCell>
+										{task.dueDate
+											? dayjs(task.dueDate).format(
+													"DD/MM/YYYY"
+											  )
+											: "No Due Date"}
+									</TableCell>
 									<TableCell>
 										{
 											["High", "Medium", "Low"][

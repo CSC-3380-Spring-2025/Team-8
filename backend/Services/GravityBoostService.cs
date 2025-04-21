@@ -14,16 +14,18 @@ namespace StudyVerseBackend.Services
             _context = context;
         }
 
-        public async Task<GravityBoosts> CreateBoost(GravityBoosts boost)
+        public async Task<List<GalaxyBoostRes>> GetAllBoosts(string userId)
         {
-            _context.GravityBoosts.Add(boost);
-            await _context.SaveChangesAsync();
-            return boost;
-        }
-
-        public async Task<List<GravityBoosts>> GetAllBoosts(string userId)
-        {
-            return await _context.GravityBoosts.Where(gb => gb.Receiver_Id == userId).ToListAsync();
+            return await _context.GravityBoosts.Where(gb => gb.Receiver_Id == userId)
+                .Select(boost => new GalaxyBoostRes
+                {
+                    Boost_Id = boost.Boost_Id,
+                    message = boost.Message,
+                    sender_id = boost.Sender_Id,
+                    sender_name = boost.Sender.Name,
+                    receiver_id = boost.Receiver_Id
+                })
+                .ToListAsync();
         }
 
         public async Task<GravityBoosts> GetBoostById(int id)

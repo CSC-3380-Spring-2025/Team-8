@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { getSearchableUsernames } from "../friendAPIHelpers";
-import {createGravityBoost} from "@/app/tasks/api/gravityBoostAPIHelper";
+import { createGravityBoost } from "@/app/tasks/api/gravityBoostAPIHelper";
 
 export default function SendGalaxyBoost() {
 	/*
@@ -84,27 +84,24 @@ export default function SendGalaxyBoost() {
 		};
 
 		// Send the galaxy boost post data to the server
-		await createGravityBoost(galaxyBoostPostData)
-			.then((res) => {
-				console.log("Galaxy Boost sent:", res);
+		try {
+			const res = await createGravityBoost(galaxyBoostPostData);
+			console.log("Galaxy Boost sent:", res);
 
+			if (res.status === 200 || res.status === 201 || res.boost_Id) {
 				// Clear all the data
-				if( res.status == 200 || res.status == 201 || res.boost_Id) {
-					setInputValue("");
-					setSelectedUser(null);
-
-					setGalaxyBoost({
-						receiver_id: "",
-						message: "",
-					});
-
-					e.currentTarget.reset();
-				}
-			})
-			.catch((err) => {
-				console.error("Error sending Galaxy Boost:", err);
-				alert("Error sending Galaxy Boost.")
-			});
+				setInputValue("");
+				setSelectedUser(null);
+				setGalaxyBoost({
+					receiver_id: "",
+					message: "",
+				});
+				e.currentTarget.reset();
+			}
+		} catch (err) {
+			console.error("Error sending Galaxy Boost:", err);
+			alert("Error sending Galaxy Boost.");
+		}
 	};
 
 	return (

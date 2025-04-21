@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using PlannerApi.DTOs;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
@@ -33,14 +34,9 @@ namespace PlannerApi.Controllers
             return taskItem;
         }
 
-        // GET: api/Task
-        /*
-         * This method should know only return all the tasks a user owns and nothing else.
-         */
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
         {
-
             string? userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -54,11 +50,10 @@ namespace PlannerApi.Controllers
                 {
                     Id = task.Id,
                     Description = task.Description,
-                    DueDate = task.DueDate,
+                    DueDate = task.DueDate.HasValue ? task.DueDate : null,
                     IsCompleted = task.IsCompleted,
                     Title = task.Title,
                     Priority = task.Priority
-
                 })
                 .ToListAsync();
 
@@ -82,6 +77,8 @@ namespace PlannerApi.Controllers
                 UserId = userId,
                 Title = taskItem.Title,
                 Description = taskItem.Description,
+                IsCompleted = false,
+                DueDate = taskItem.DueDate.HasValue ? taskItem.DueDate : null,
                 Priority = taskItem.Priority,
                 CreatedAt = DateTime.Now
             };
@@ -125,11 +122,11 @@ namespace PlannerApi.Controllers
             }
             else if (!existingTask.IsCompleted && taskItem.IsCompleted)
             {
-                existingTask.CompletedAt = DateTime.Now;
+                existingTask.CompletedAt = DateTime.UtcNow;
             }
 
             existingTask.IsCompleted = taskItem.IsCompleted;
-            existingTask.DueDate = taskItem.DueDate;
+            existingTask.DueDate = taskItem.DueDate.HasValue ? taskItem.DueDate : null;
 
             try
             {

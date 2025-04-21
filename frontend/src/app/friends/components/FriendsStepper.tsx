@@ -252,8 +252,8 @@ export default function FriendsStepper({
 									{boost.sender_name.substring(0, 2)}
 								</Avatar>
 								<ListItemText
-									primary={`Boost from ${boost.sender_name}`}
-									secondary={boost.message}
+									primary={boost.message}
+									secondary={`Boost from ${boost.sender_name}`}
 									sx={{ marginLeft: 2, color: "black" }}
 								/>
 								<RocketLaunch

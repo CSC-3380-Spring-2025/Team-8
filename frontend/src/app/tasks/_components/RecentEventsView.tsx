@@ -33,7 +33,9 @@ export default function RecentEventsView({
 						}}
 					>
 						<ListItemText
-							primary={`${event.title} - ${event.eventDate}`}
+							primary={`${event.title} - ${dayjs(
+								event.eventDate
+							).format("MMM D, YYYY @ h:mm A")}`}
 							secondary={event.description}
 						/>
 					</ListItem>
