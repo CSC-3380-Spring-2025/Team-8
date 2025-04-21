@@ -23,7 +23,7 @@ export type FriendResponseDto = {
 Type dealing what it looks like to send a post request to the server
 */
 export type GalaxyBoostPost = {
-	reciever_id: string;
+	receiver_id: string;
 	message: string;
 };
 

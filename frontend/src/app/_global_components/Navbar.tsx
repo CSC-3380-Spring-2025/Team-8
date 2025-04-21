@@ -44,6 +44,7 @@ const Navbar = () => {
 
 	const handleSignOut = () => {
 		localStorage.removeItem("authToken");
+		setIsAuthenticated(false);
 
 		if (!localStorage.getItem("authToken")) {
 			router.push("/");

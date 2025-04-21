@@ -1,4 +1,5 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
+import {deleteTask, updateTask} from "@/app/tasks/api/taskAPIHelpers";
 import {
 	Table,
 	TableBody,
@@ -37,10 +38,12 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		console.log("Updated taskList:", taskList);
 	}, [taskList]);
 
+	//@ts-ignore
 	const handleChangePage = (event, newPage: number) => {
 		setPage(newPage);
 	};
 
+	// @ts-ignore
 	const handleChangeRowsPerPage = (event) => {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0);
@@ -64,30 +67,38 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		return matchesStatus && matchesPriority && matchesDueDate;
 	});
 
-	const handleTaskChange = (taskId: number) => {
+	const handleTaskChange = async (taskId: number) => {
 		// Filter for the task with the given ID
 		const updatedTask = taskList.find((task) => task.id === taskId);
 
-		// TODO: this will be where the API call to update the task will be made before updating the local copy
+		if (updatedTask) {
+			const data = await updateTask(taskId, updatedTask);
+			if (!data) {
+				console.error("Failed to update task");
+				alert("Issue updating task");
+				return;
+			}
+		}
 
 		const updatedTasks = taskList.map((task) => {
 			if (task.id === taskId) {
-				return { ...task, isCompleted: !task.isCompleted };
+				return {...task, isCompleted: !task.isCompleted};
 			}
 			return task;
 		});
 		setTaskList(updatedTasks);
 	};
 
-	const handleDeleteTask = (taskId: number) => {
-		// Filter for the task with the given ID
-		const deletedTask = taskList.find((task) => task.id === taskId);
+	const handleDeleteTask = async (taskId: number) => {
+		try {
+			await deleteTask(taskId);
+			console.log(`Task with ID ${taskId} deleted successfully.`);
 
-		// TODO: this will be where the API call to delete the task will be made before updating the local copy
-
-		// Filter out the task with the given ID
-		const updatedTasks = taskList.filter((task) => task.id !== taskId);
-		setTaskList(updatedTasks);
+			const updatedTasks = taskList.filter((task) => task.id !== taskId);
+			setTaskList(updatedTasks);
+		} catch (error) {
+			console.error("Failed to delete task:", error);
+		}
 	};
 
 	return (

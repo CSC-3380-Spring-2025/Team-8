@@ -20,7 +20,13 @@ import {
 	RocketLaunch,
 } from "@mui/icons-material";
 import { SyntheticEvent, useEffect, useState } from "react";
-import {acceptFriendRequest, addFriends, getSearchableUsernames, ignoreFriendRequest, removeFriend} from "../api";
+import {
+	acceptFriendRequest,
+	addFriends,
+	getSearchableUsernames,
+	ignoreFriendRequest,
+	removeFriend,
+} from "../friendAPIHelpers";
 
 export default function FriendsStepper({
 	friendsInformation,
@@ -31,12 +37,11 @@ export default function FriendsStepper({
 	recentGalaxyBoosts: GalaxyBoostRes[];
 	pendingFriends: UserFriendsRes[];
 }) {
-
 	/**
 	 * State props
 	 */
-	const [friends, setFriends] = useState<UserFriendsRes[]>(friendsInformation);
-	const [pending, setPending] = useState<UserFriendsRes[]>(pendingFriends);
+	const [friends, setFriends] = useState<UserFriendsRes[]>([]);
+	const [pending, setPending] = useState<UserFriendsRes[]>([]);
 
 	/*
     Dealing with friends input fields and autocomplete
@@ -84,20 +89,26 @@ export default function FriendsStepper({
 		return () => clearTimeout(timeoutId);
 	}, [inputValue]);
 
+	useEffect(() => {
+		// this happens when the component mounts and when the friends list changes
+		setFriends(friendsInformation);
+		setPending(pendingFriends);
+	}, [friendsInformation, pendingFriends]);
+
 	const handleRemoveFriend = (id: string) => {
 		// Logic to remove friend goes here
 		console.log(`Removing friend with id: ${id}`);
 
 		removeFriend(id)
 			.then((res) => {
-				setSnackbarMessage("Removing the friend....");
+				setSnackbarMessage("Removed said friend.");
 				setOpenSnackbar(true);
 				setFriends((prev) => prev.filter((f) => f.id !== id));
 			})
 			.catch((err) => {
 				setSnackbarMessage("Issue removing friend.");
 				setOpenSnackbar(true);
-			})
+			});
 	};
 
 	const handleIgnoreFriendRequest = (id: string) => {
@@ -108,28 +119,31 @@ export default function FriendsStepper({
 				setSnackbarMessage("Ignoring friend request...");
 				setOpenSnackbar(true);
 			})
-			.catch((err) => {
-
-			})
+			.catch((err) => {});
 	};
 
 	const handleAcceptFriendRequest = (id: string) => {
 		// future API Logic to accept friend request goes here
 		acceptFriendRequest(id)
 			.then((res) => {
-				const acceptedFriend = pending.find((p) => p.id === id);
-				if (acceptedFriend) {
-					setFriends((prev) => [...prev, acceptedFriend]);
-					setPending((prev) => prev.filter((p) => p.id !== id));
-				}
+				if (res?.status == 200) {
+					const acceptedFriend = pending.find((p) => p.id === id);
+					if (acceptedFriend) {
+						setFriends((prev) => [...prev, acceptedFriend]);
+						setPending((prev) => prev.filter((p) => p.id !== id));
+					}
 
-				setSnackbarMessage("Accepted friend request");
-				setOpenSnackbar(true);
+					setSnackbarMessage("Accepted friend request");
+					setOpenSnackbar(true);
+				} else {
+					setSnackbarMessage("Error accepting friend request");
+					setOpenSnackbar(true);
+				}
 			})
 			.catch((err) => {
 				setSnackbarMessage(err.message);
 				setOpenSnackbar(true);
-			})
+			});
 	};
 
 	const handleAddFriend = () => {
@@ -146,7 +160,9 @@ export default function FriendsStepper({
 		addFriends(selectedUser?.id)
 			.then((res) => {
 				if (selectedUser) {
-					setSnackbarMessage(`Added ${selectedUser.name} as a friend!`);
+					setSnackbarMessage(
+						`Added ${selectedUser.name} as a friend!`
+					);
 					setOpenSnackbar(true);
 				}
 
@@ -160,9 +176,11 @@ export default function FriendsStepper({
 				console.log(err);
 
 				// Set snackbar
-				setSnackbarMessage("Error adding user. Make sure the user doesn't have the same name as you");
+				setSnackbarMessage(
+					"Error adding user. Make sure the user doesn't have the same name as you"
+				);
 				setOpenSnackbar(true);
-			})
+			});
 	};
 
 	return (
@@ -174,7 +192,7 @@ export default function FriendsStepper({
 			>
 				<Grid2 size={{ xs: 12, md: 6 }}>
 					<h2>Friends</h2>
-					{friendsInformation.length === 0 && <p>No friends found</p>}
+					{friends.length === 0 && <p>No friends found</p>}
 					<List>
 						{friends.map((friend, index) => (
 							<ListItem
@@ -225,6 +243,7 @@ export default function FriendsStepper({
 								key={index}
 								sx={{
 									padding: 2,
+									backgroundColor: "white",
 									marginBottom: 1,
 									borderRadius: 2,
 								}}
@@ -286,7 +305,12 @@ export default function FriendsStepper({
 							/>
 						)}
 					></Autocomplete>
-					<Button onClick={handleAddFriend} sx={{marginTop: 1}}>Add Friend</Button>
+					<Button
+						onClick={handleAddFriend}
+						sx={{ marginTop: 1 }}
+					>
+						Add Friend
+					</Button>
 				</Grid2>
 				<Grid2 size={{ xs: 12, md: 6 }}>
 					<h2>Pending Friends</h2>
@@ -350,4 +374,3 @@ export default function FriendsStepper({
 		</div>
 	);
 }
-

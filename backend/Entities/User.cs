@@ -28,6 +28,19 @@ public class User : IdentityUser
 
     public ICollection<ConstellationStatus> ConstellationStatuses = new List<ConstellationStatus>();
 
+    public ICollection<Friends> FriendRequestsSent { get; set; } = new List<Friends>();
+    public ICollection<Friends> FriendRequestsReceived { get; set; } = new List<Friends>();
+
+    public IEnumerable<User> AllFriends =>
+        FriendRequestsSent
+            .Where(f => f.Status == FriendshipStatus.Accepted)
+            .Select(f => f.Recipient)
+        .Concat(
+            FriendRequestsReceived
+            .Where(f => f.Status == FriendshipStatus.Accepted)
+            .Select(f => f.Requestor)
+        );
+
 
     public void SetCustomizationSettings(string settings)
     {

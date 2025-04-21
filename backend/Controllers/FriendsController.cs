@@ -6,6 +6,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using StudyVerseBackend.Infastructure.Contexts;
 using StudyVerseBackend.Models.Friends;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using StudyVerseBackend.Models.Tasks;
 
 namespace StudyVerseBackend.Controllers
 {
@@ -33,7 +35,7 @@ namespace StudyVerseBackend.Controllers
             {
                 return Unauthorized("Missing authentication token");
             }
-            
+
             if (requestorId == recipientId)
                 return BadRequest("You cannot send a friend request to yourself.");
 
@@ -65,7 +67,7 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> RespondToRequest([FromBody] FriendResponseDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             if (userId is null or "")
             {
                 return Unauthorized("Missing authentication token");
@@ -90,7 +92,7 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> GetPendingRequests()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             if (userId is null or "")
             {
                 return Unauthorized("Missing authentication token");
@@ -99,14 +101,24 @@ namespace StudyVerseBackend.Controllers
             var requests = await _context.Friends
                 .Where(f => f.RecipientId == userId && f.Status == FriendshipStatus.Pending)
                 .Include(f => f.Requestor)
+                .Include(f => f.Recipient)
+                .Select(f => f.RequestorId == userId ? f.Recipient : f.Requestor)
+                .Select(friend => new UserFriendRes
+                {
+                    Id = friend.Id,
+                    Name = friend.Name,
+                    Username = friend.UserName,
+                    Planet = friend.PlanetStatus.ToString(),
+                    AvatarUrl = friend.Avatar_Url
+                })
                 .ToListAsync();
 
             return Ok(requests);
         }
 
-        // POST: api/Friends/accept?requestorId={id}
+        // POST: api/Friends/accept?recipientId={id}
         [HttpPost("accept")]
-        public async Task<IActionResult> AcceptFriendRequest([FromQuery] string requestorId)
+        public async Task<IActionResult> AcceptFriendRequest([FromQuery] string recipientId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -116,7 +128,7 @@ namespace StudyVerseBackend.Controllers
             }
 
             var request = await _context.Friends.FirstOrDefaultAsync(f =>
-                f.RequestorId == requestorId && f.RecipientId == userId && f.Status == FriendshipStatus.Pending);
+                f.RequestorId == recipientId && f.RecipientId == userId && f.Status == FriendshipStatus.Pending);
 
             if (request == null)
                 return NotFound("Friend request not found.");
@@ -157,7 +169,7 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> GetFriendsList()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             if (userId is null or "")
             {
                 return Unauthorized("Missing authentication token");
@@ -190,7 +202,7 @@ namespace StudyVerseBackend.Controllers
         public async Task<IActionResult> RemoveFriend(string friendId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             if (userId is null or "")
             {
                 return Unauthorized("Missing authentication token");
@@ -208,11 +220,48 @@ namespace StudyVerseBackend.Controllers
 
             return Ok("Friend removed.");
         }
-    }
 
-    public class FriendResponseDto
-    {
-        public string RequestorId { get; set; }
-        public bool Accept { get; set; }
+        // GET: api/Friends/activity
+        [HttpGet("activity")]
+        public async Task<ActionResult<IEnumerable<TaskActivityView>>> GetFriendsRecentCompletedTasks()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized("Missing JWT token in header.");
+            }
+
+            // Get all accepted friends
+            var friendIds = await _context.Friends
+                .Where(f =>
+                    (f.RequestorId == userId || f.RecipientId == userId) &&
+                    f.Status == FriendshipStatus.Accepted)
+                .Select(f => f.RequestorId == userId ? f.RecipientId : f.RequestorId)
+                .ToListAsync();
+
+            // Get top 8 recently completed tasks by those friends
+            var recentCompletedTasks = await _context.Tasks
+                .Where(t => t.IsCompleted && t.CompletedAt != null && friendIds.Contains(t.UserId))
+                .OrderByDescending(t => t.CompletedAt)
+                .Take(8)
+                .Select(t => new TaskActivityView
+                {
+                    Username = t.CurrentUser.UserName,
+                    Name = t.CurrentUser.Name,
+                    Title = t.Title,
+                    CompletedAt = t.CompletedAt.Value
+                })
+                .ToListAsync();
+
+            return Ok(recentCompletedTasks);
+        }
+
+
+
+        public class FriendResponseDto
+        {
+            public string RequestorId { get; set; }
+            public bool Accept { get; set; }
+        }
     }
 }

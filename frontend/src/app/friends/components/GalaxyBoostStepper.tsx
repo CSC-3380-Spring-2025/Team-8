@@ -26,6 +26,7 @@ export default function GalaxyBoostStepper({
 								key={index}
 								sx={{
 									padding: 2,
+									backgroundColor: "white",
 									marginBottom: 1,
 									borderRadius: 2,
 								}}

@@ -53,7 +53,7 @@ namespace StudyVerseBackend.Services
             {
                 Sender_Id = userId,
                 Receiver_Id = galaxyBoostPost.receiver_id,
-                Message = galaxyBoostPost.message
+                Message = galaxyBoostPost.message,
             };
 
             _context.GravityBoosts.Add(gb);

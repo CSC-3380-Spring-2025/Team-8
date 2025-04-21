@@ -17,7 +17,8 @@ import {
 	Button,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { getSearchableUsernames } from "../api";
+import { getSearchableUsernames } from "../friendAPIHelpers";
+import {createGravityBoost} from "@/app/tasks/api/gravityBoostAPIHelper";
 
 export default function SendGalaxyBoost() {
 	/*
@@ -34,7 +35,7 @@ export default function SendGalaxyBoost() {
     State dealing with the adding of a component
     */
 	const [galaxyBoostPost, setGalaxyBoost] = useState<GalaxyBoostPost>({
-		reciever_id: "",
+		receiver_id: "",
 		message: "",
 	});
 
@@ -68,7 +69,7 @@ export default function SendGalaxyBoost() {
 		return () => clearTimeout(timeoutId);
 	}, [inputValue]);
 
-	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		const data = new FormData(e.currentTarget);
@@ -78,22 +79,32 @@ export default function SendGalaxyBoost() {
 		if (!selectedUser?.username || !userMessage) return;
 
 		let galaxyBoostPostData: GalaxyBoostPost = {
-			reciever_id: selectedUser?.id,
+			receiver_id: selectedUser?.id,
 			message: userMessage,
 		};
 
-		console.log(galaxyBoostPostData);
+		// Send the galaxy boost post data to the server
+		await createGravityBoost(galaxyBoostPostData)
+			.then((res) => {
+				console.log("Galaxy Boost sent:", res);
 
-		// Clear all the data
-		setInputValue("");
-		setSelectedUser(null);
+				// Clear all the data
+				if( res.status == 200 || res.status == 201 || res.boost_Id) {
+					setInputValue("");
+					setSelectedUser(null);
 
-		setGalaxyBoost({
-			reciever_id: "",
-			message: "",
-		});
+					setGalaxyBoost({
+						receiver_id: "",
+						message: "",
+					});
 
-		e.currentTarget.reset();
+					e.currentTarget.reset();
+				}
+			})
+			.catch((err) => {
+				console.error("Error sending Galaxy Boost:", err);
+				alert("Error sending Galaxy Boost.")
+			});
 	};
 
 	return (

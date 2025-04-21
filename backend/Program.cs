@@ -40,6 +40,11 @@ builder.Services.AddHttpLogging(o => { });
 // Configure any dependency injection objects here
 builder.Services.AddSingleton<IEnvService, EnvService>();
 
+// Add a service for the Gravity Boost and Friends
+builder.Services.AddScoped<GravityBoostService>();
+builder.Services.AddScoped<PomodoroSessionService>();
+
+
 // Add a service for logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();

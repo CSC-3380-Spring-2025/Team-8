@@ -2,7 +2,6 @@
 
 import Navbar from "@/app/_global_components/Navbar";
 import {
-	Box,
 	Button,
 	Container,
 	Dialog,
@@ -15,16 +14,18 @@ import {
 	TextField,
 } from "@mui/material";
 import CalendarComponent from "@/app/tasks/_components/CalendarComponent";
-import { CalendarEventDto, TaskDto } from "@/app/tasks/taskDtos";
+import {CalendarEventDto, TaskDto} from "@/app/tasks/taskDtos";
 import RecentEventsView from "@/app/tasks/_components/RecentEventsView";
 import RecentTasksView from "@/app/tasks/_components/RecentTasksView";
-import { AddTask } from "@mui/icons-material";
-import { useState } from "react";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import {AddTask} from "@mui/icons-material";
+import {useEffect, useState} from "react";
+import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { s } from "framer-motion/client";
 import TaskListView from "./_components/TaskListView";
+import {createTask, getAllTasks} from "@/app/tasks/api/taskAPIHelpers";
+import { getCalendarEvents } from "@/app/tasks/api/calendarAPIHelpers";
+
 
 export default function Page() {
 	const mockEvents: CalendarEventDto[] = [
@@ -65,56 +66,6 @@ export default function Page() {
 		},
 	];
 
-	const mockTasks: TaskDto[] = [
-		{
-			id: 1,
-			title: "Finish frontend layout",
-			description: "Finalize dashboard and responsive layout",
-			isCompleted: false,
-			dueDate: "2025-04-10",
-			priority: 1,
-		},
-		{
-			id: 2,
-			title: "Write project report",
-			description: "Include introduction, diagrams, and results",
-			isCompleted: false,
-			dueDate: "2025-04-12",
-			priority: 2,
-		},
-		{
-			id: 3,
-			title: "Team meeting",
-			description: "Discuss progress and assign new tasks",
-			isCompleted: true,
-			dueDate: "2025-04-08",
-			priority: 3,
-		},
-		{
-			id: 4,
-			title: "Push code to GitHub",
-			isCompleted: false,
-			dueDate: "2025-04-09",
-			priority: 2,
-		},
-		{
-			id: 5,
-			title: "Prepare presentation slides",
-			description: "Create visuals and speaker notes",
-			isCompleted: false,
-			dueDate: "2025-04-11",
-			priority: 1,
-		},
-		{
-			id: 6,
-			title: "Clean up codebase",
-			description: "Remove unused files and refactor functions",
-			isCompleted: true,
-			dueDate: "2025-04-07",
-			priority: 3,
-		},
-	];
-
 	const [modalOpen, setModalOpen] = useState(false);
 	const [selectedTask, setSelectedTask] = useState<TaskDto>({
 		id: 0,
@@ -126,33 +77,56 @@ export default function Page() {
 	});
 
 	const [events, setEvents] = useState<CalendarEventDto[]>(mockEvents);
-	const [tasks, setTasks] = useState<TaskDto[]>(mockTasks);
+	const [tasks, setTasks] = useState<TaskDto[]>([]);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const data = await getAllTasks();
+				setTasks(data);
+
+				/**
+				 * TODO: Marcus add your await call for getting all the calendar events here
+				 * then call the state function (aka: setEvents) with the new data,
+				 */
+
+				const calendarData = await getCalendarEvents();
+				setEvents(calendarData);
+
+			} catch (error) {
+				console.error("Error fetching tasks:", error);
+			}
+		};
+		fetchData();
+	}, []);
+
 
 	/*
     Code pertaining to the modal dialog for adding a new task.
     */
-	const handleSaveTask = () => {
-		// Preparing to send this to the task
-		console.log("Task saved:", selectedTask);
+	const handleSaveTask = async () => {
+		try {
+			// Log the task being saved
+			console.log("Task saved:", selectedTask);
 
-		//TODO: you would typically send the task to the backend API
+			// ACTION THAT SENDS THE TASK TO THE BACKEND.
+			const data = await createTask(selectedTask);
 
-		// Add the task to the list of tasks (mocked here)
-		mockTasks.push({
-			...selectedTask,
-			id: mockTasks.length + 1, // Assign a new ID
-		});
-
-		// Reset the selected task and close the modal
-		setSelectedTask({
-			id: 0,
-			title: "",
-			description: "",
-			isCompleted: false,
-			dueDate: "",
-			priority: 0,
-		});
-		setModalOpen(false);
+			// reset the tasks
+			setTasks([...tasks, data]);
+			setSelectedTask({
+				id: 0,
+				title: "",
+				description: "",
+				isCompleted: false,
+				dueDate: "",
+				priority: 0,
+			});
+			setModalOpen(false);
+		} catch (error) {
+			// Handle any errors during the API call
+			console.error("Error saving task:", error);
+		}
 	};
 
 	const handleClickOpen = () => {
@@ -290,4 +264,5 @@ export default function Page() {
 			</Dialog>
 		</>
 	);
+
 }

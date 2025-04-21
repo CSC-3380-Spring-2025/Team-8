@@ -8,7 +8,7 @@ public class GravityBoosts
     public int Boost_Id { get; set; }
     [Required]
     public string Message { get; set; }
-    public DateTimeOffset Sent_At { get; set; } = DateTimeOffset.Now;
+    public DateTimeOffset Sent_At { get; set; } = DateTimeOffset.UtcNow;
     [Required]
     public String Sender_Id { get; set; }
     public User Sender { get; set; }

@@ -11,6 +11,12 @@ import {
 } from "@mui/material";
 import {PomodoroDTO, PomodoroDTOPost} from "@/app/pomodoro/pomodoroDTO";
 import dayjs from "dayjs";
+import {
+	createPomodoro,
+	deletePomodoroSession,
+	updatePomodoroSession,
+
+} from "@/app/pomodoro/pomodoroAPIHelpers";
 
 const formatTime = (seconds: number): string => {
 	const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -44,8 +50,6 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 
 			setSecondsLeft(diffInSeconds > 0 ? diffInSeconds : 0);
 			setIsRunning(diffInSeconds > 0); // start running only if time left
-		} else {
-
 		}
 	}, [pomodoroSession]);
 
@@ -68,12 +72,22 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 		setTitle(e.target.value);
 	};
 
-	const resetTimer = (): void => {
+	const resetTimer = async (): Promise<void> => {
+		console.log("Resetting timer which the current ID is " + session?.sessionId);
+
+if (session?.sessionId) {
+	try {
+		await deletePomodoroSession(session.sessionId);
+		console.log("Session deleted successfully");
+	} catch (error) {
+		console.error("Failed to delete session:", error);
+	}
+}
 		setSecondsLeft(25 * 60);
 		setIsRunning(false);
 	};
 
-	const handlePause = () => {
+	const handlePause = async () => {
 		if (session) {
 			const newDueTime = dayjs().add(secondsLeft, "second").toISOString();
 
@@ -87,16 +101,21 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 
 			// SEND API REQUEST TO UPDATE BACKEND HERE
 			console.log("Pause updating dueTime to:", updatedSession);
+			try {
+				await updatePomodoroSession(updatedSession);
+				console.log("Session successfully updated");
+			}catch (error){
+				console.error("Failed to update session:",error);
+			}
 
-			// Send API to update request
-			// fetch(`/api/pomodoro/${updatedSession.id}`, {
+
 
 			setIsRunning(false);
 		}
 	};
 
 
-	const handleStart = () => {
+	const handleStart = async () => {
 		// default time is 25 minutes, but add 5 seconds to account for server delay.
 		const newDueTime = dayjs().add(25, 'minutes').add(5, "seconds");
 
@@ -105,16 +124,20 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			dueTime: newDueTime.toISOString(),
 		};
 
-		//TODO: Send that model to the Backend here.
-		console.log(model);
+		try {
+			const data = await createPomodoro(model);
+			console.log("Created pomodoro session:", data);
 
-		// Ideally you would return the data from the backend here.
-		setSession({id: 1030, dueTime: newDueTime.toISOString(), title: title, isPaused: false});
+			// Ideally you would return the data from the backend here.
+			setSession({sessionId: data.sessionId, dueTime: data.dueTime, title: data.title, isPaused: false});
 
+			// start the actual timer.
+			setIsRunning(true);
+		}catch (e) {
+			console.error(e);
+			alert("Error creating pomodoro");
+		}
 
-
-		// start the actual timer.
-		setIsRunning(true);
 	}
 
 	return (

@@ -32,13 +32,21 @@ namespace StudyVerseBackend.Controllers
 
         // GET: api/calendar (Get all events for logged-in user)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetUserEvents()
+        public async Task<ActionResult<IEnumerable<CalendarEventDto>>> GetUserEvents()
         {
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
             var events = await _context.CalendarEvents
                 .Where(e => e.UserId == userId)
+                .Select(e => new CalendarEventDto
+                {
+                    Id = e.EventId,
+                    EventDate = e.EventDate,
+                    Description = e.Description,
+                    Title = e.Title,
+                    EventType = e.EventType
+                })
                 .ToListAsync();
 
             return Ok(events);
