@@ -15,7 +15,7 @@ export default function VerificationSignup({signUpForm}: VerificationPageProps) 
             <Grid2 size={12}>
                 <List sx={{backgroundColor: "inherit"}}>
                     <ListItem key={signUpForm.name}>
-                        <ListItemText primary={"First Name"} secondary={signUpForm.name} sx={{backgroundColor: "white"}}/>
+                        <ListItemText primary={"First Name"} secondary={signUpForm.name}/>
                     </ListItem>
                     <ListItem key={signUpForm.email}>
                         <ListItemText primary={"Email"} secondary={signUpForm.email}/>

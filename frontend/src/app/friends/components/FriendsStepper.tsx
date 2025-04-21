@@ -192,7 +192,7 @@ export default function FriendsStepper({
 			>
 				<Grid2 size={{ xs: 12, md: 6 }}>
 					<h2>Friends</h2>
-					{friendsInformation.length === 0 && <p>No friends found</p>}
+					{friends.length === 0 && <p>No friends found</p>}
 					<List>
 						{friends.map((friend, index) => (
 							<ListItem

@@ -1,8 +1,6 @@
 import axios from 'axios';
 import {BASE_API_URL, getAxiosConfig} from "@/app/custom_hooks/authentication";
-
-
-const BASE_API_URL = 'https://localhost:7044/api';
+import {GalaxyBoostPost} from "@/app/friends/friendsType";
 
 export const getGravityBoostData = async () => {
 	try {
@@ -14,7 +12,7 @@ export const getGravityBoostData = async () => {
 	}
 };
 
-export const createGravityBoost = async (payload: any) => {
+export const createGravityBoost = async (payload: GalaxyBoostPost) => {
 	try {
 		const res = await axios.post(`${BASE_API_URL}/GravityBoost`, payload, getAxiosConfig());
 		console.log("Created GravityBoost:", res.data);

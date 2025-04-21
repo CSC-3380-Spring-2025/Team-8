@@ -35,7 +35,7 @@ export const  deletePomodoroSession = async (id: string): Promise<any> => {
         console.error("Error deleting the pomodoroSession:", err);
     }
 }
-export const updatePomodoroSession = async (updatedSession: PomodoroSession): Promise<void> =>{
+export const updatePomodoroSession = async (updatedSession: PomodoroDTO): Promise<void> =>{
     try {
         const response = await axios.put(`${BASE_API_URL}/pomodoroSession/${updatedSession.sessionId}`, updatedSession,
             getAxiosConfig()

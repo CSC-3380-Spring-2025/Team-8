@@ -1,5 +1,5 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
-import { deleteTask } from "@/app/tasks/api/taskAPIHelpers";
+import {deleteTask, updateTask} from "@/app/tasks/api/taskAPIHelpers";
 import {
 	Table,
 	TableBody,
@@ -67,21 +67,22 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 		return matchesStatus && matchesPriority && matchesDueDate;
 	});
 
-	const handleTaskChange = (taskId: number) => {
+	const handleTaskChange = async (taskId: number) => {
 		// Filter for the task with the given ID
 		const updatedTask = taskList.find((task) => task.id === taskId);
 
-		/**
-		 * TODO: Alanna this is where you'll call the API call to update the task
-		 * So whatever you decide to call the method you will need to call it here.
-		 * Note: you may need to update the function signature to async.
-		 *
-		 * The rest of the function should not need to change.
-		 */
+		if (updatedTask) {
+			const data = await updateTask(taskId, updatedTask);
+			if (!data) {
+				console.error("Failed to update task");
+				alert("Issue updating task");
+				return;
+			}
+		}
 
 		const updatedTasks = taskList.map((task) => {
 			if (task.id === taskId) {
-				return { ...task, isCompleted: !task.isCompleted };
+				return {...task, isCompleted: !task.isCompleted};
 			}
 			return task;
 		});
@@ -93,7 +94,6 @@ export default function TaskListView({ tasks }: { tasks: TaskDto[] }) {
 			await deleteTask(taskId);
 			console.log(`Task with ID ${taskId} deleted successfully.`);
 
-			// ✅ Move this INSIDE the async function
 			const updatedTasks = taskList.filter((task) => task.id !== taskId);
 			setTaskList(updatedTasks);
 		} catch (error) {
