@@ -80,7 +80,7 @@ namespace PlannerApi.Controllers
                 IsCompleted = false,
                 DueDate = taskItem.DueDate.HasValue ? taskItem.DueDate : null,
                 Priority = taskItem.Priority,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Tasks.Add(task);
@@ -141,7 +141,7 @@ namespace PlannerApi.Controllers
                 throw;
             }
 
-            return NoContent();
+            return CreatedAtAction(nameof(GetTask), new { id = existingTask.Id }, existingTask);
         }
 
 

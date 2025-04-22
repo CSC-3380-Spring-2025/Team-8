@@ -61,6 +61,9 @@ export const updateTask = async (
 	try {
 		if (taskDto.dueDate) {
 			taskDto.dueDate = dayjs(taskDto.dueDate).format("YYYY-MM-DD");
+		} else {
+			// @ts-ignore
+			taskDto.dueDate = null;
 		}
 
 		const res = await axios.put(

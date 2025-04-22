@@ -33,7 +33,7 @@ export default function Page() {
 		title: "",
 		description: "",
 		isCompleted: false,
-		dueDate: "",
+		dueDate: null,
 		priority: 1,
 	});
 
@@ -79,7 +79,7 @@ export default function Page() {
 				description: "",
 				isCompleted: false,
 				dueDate: "",
-				priority: 0,
+				priority: 3,
 			});
 			setModalOpen(false);
 		} catch (error) {
@@ -205,7 +205,7 @@ export default function Page() {
 							aria-label="Priority"
 							onChange={(e, newValue) => {
 								// map that value from one to three
-								let priority = 0;
+								let priority = 3;
 								if (newValue === 100) priority = 1;
 								else if (newValue === 50) priority = 2;
 								else if (newValue === 0) priority = 3;
