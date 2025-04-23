@@ -19,7 +19,7 @@ public class User : IdentityUser
 
     public string? CustomizationOptions { get; set; }
 
-    public ICollection<Task> Tasks { get; } = new List<Task>();
+    public ICollection<Tasks> Tasks { get; } = new List<Tasks>();
     public ICollection<CalendarEvent> CalendarEvents { get; } = new List<CalendarEvent>();
     public ICollection<PomodoroSession> PomodoroSessions { get; } = new List<PomodoroSession>();
 
@@ -27,6 +27,19 @@ public class User : IdentityUser
     public int Stars = 0;
 
     public ICollection<ConstellationStatus> ConstellationStatuses = new List<ConstellationStatus>();
+
+    public ICollection<Friends> FriendRequestsSent { get; set; } = new List<Friends>();
+    public ICollection<Friends> FriendRequestsReceived { get; set; } = new List<Friends>();
+
+    public IEnumerable<User> AllFriends =>
+        FriendRequestsSent
+            .Where(f => f.Status == FriendshipStatus.Accepted)
+            .Select(f => f.Recipient)
+        .Concat(
+            FriendRequestsReceived
+            .Where(f => f.Status == FriendshipStatus.Accepted)
+            .Select(f => f.Requestor)
+        );
 
 
     public void SetCustomizationSettings(string settings)

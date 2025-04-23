@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
-public class Task
+public class Tasks
 {
     public int Id { get; set; }  // Primary key for Task
 
@@ -10,11 +10,11 @@ public class Task
 
     public bool IsCompleted { get; set; }  // Status of whether the task is completed
 
-    public DateTime DueDate { get; set; }  // The date and time by which the task should be completed
+    public DateOnly? DueDate { get; set; }  // The date and time by which the task should be completed
 
     public int Priority { get; set; }  // Priority of the task (1 = Low, 2 = Medium, 3 = High)
 
-    public DateTime CreatedAt { get; set; }  // The date when the task was created
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // The date when the task was created
 
     public DateTime? CompletedAt { get; set; }  // The date when the task was completed (nullable if not completed yet)
 
@@ -22,4 +22,4 @@ public class Task
     public User CurrentUser { get; set; }
 
 }
- 
+

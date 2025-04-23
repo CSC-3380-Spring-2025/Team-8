@@ -21,7 +21,7 @@ public class ApplicationDbContext
     public DbSet<Friends> Friends { get; set; }
     public DbSet<PomodoroSession> PomodoroSessions { get; set; }
     public DbSet<GravityBoosts> GravityBoosts { get; set; }
-    public DbSet<Task> Tasks { get; set; }
+    public DbSet<Tasks> Tasks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -67,13 +67,15 @@ public class ApplicationDbContext
 
         builder.Entity<Friends>()
             .HasOne(fr => fr.Requestor)
-            .WithMany()
-            .HasForeignKey(fr => fr.RequestorId);
+            .WithMany(u => u.FriendRequestsSent)
+            .HasForeignKey(fr => fr.RequestorId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.Entity<Friends>()
             .HasOne(fr => fr.Recipient)
-            .WithMany()
-            .HasForeignKey(fr => fr.RecipientId);
+            .WithMany(u => u.FriendRequestsReceived)
+            .HasForeignKey(fr => fr.RecipientId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Code dealing with GravityBoosts
         builder.Entity<GravityBoosts>()

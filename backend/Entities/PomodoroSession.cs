@@ -18,4 +18,6 @@ public class PomodoroSession
     [MaxLength(255)]
     [Column("title")]
     public string Title { get; set; } = string.Empty;
+
+    public bool IsPaused { get; set; } = false;
 }

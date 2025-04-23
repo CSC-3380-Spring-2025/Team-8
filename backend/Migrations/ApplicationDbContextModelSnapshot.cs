@@ -284,6 +284,9 @@ namespace StudyVerseBackend.Migrations
                     b.Property<DateTime>("FinishingTimeStamp")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsPaused")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -365,6 +368,9 @@ namespace StudyVerseBackend.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -382,13 +388,15 @@ namespace StudyVerseBackend.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
+                    b.HasIndex("UserId");
+
                     b.HasIndex("UserName")
                         .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Task", b =>
+            modelBuilder.Entity("Tasks", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -406,8 +414,8 @@ namespace StudyVerseBackend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("DueDate")
+                        .HasColumnType("date");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean");
@@ -506,15 +514,15 @@ namespace StudyVerseBackend.Migrations
             modelBuilder.Entity("StudyVerseBackend.Entities.Friends", b =>
                 {
                     b.HasOne("StudyVerseBackend.Entities.User", "Recipient")
-                        .WithMany()
+                        .WithMany("FriendRequestsReceived")
                         .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("StudyVerseBackend.Entities.User", "Requestor")
-                        .WithMany()
+                        .WithMany("FriendRequestsSent")
                         .HasForeignKey("RequestorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Recipient");
@@ -552,7 +560,14 @@ namespace StudyVerseBackend.Migrations
                     b.Navigation("CurrentUser");
                 });
 
-            modelBuilder.Entity("Task", b =>
+            modelBuilder.Entity("StudyVerseBackend.Entities.User", b =>
+                {
+                    b.HasOne("StudyVerseBackend.Entities.User", null)
+                        .WithMany("AllFriends")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("Tasks", b =>
                 {
                     b.HasOne("StudyVerseBackend.Entities.User", "CurrentUser")
                         .WithMany("Tasks")
@@ -565,9 +580,15 @@ namespace StudyVerseBackend.Migrations
 
             modelBuilder.Entity("StudyVerseBackend.Entities.User", b =>
                 {
+                    b.Navigation("AllFriends");
+
                     b.Navigation("CalendarEvents");
 
                     b.Navigation("ConstellationStatuses");
+
+                    b.Navigation("FriendRequestsReceived");
+
+                    b.Navigation("FriendRequestsSent");
 
                     b.Navigation("PomodoroSessions");
 

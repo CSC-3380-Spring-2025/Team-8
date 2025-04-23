@@ -1,14 +1,19 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
 using System.Security.Claims;
 using System.Text;
+using System.Xml.Linq;
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Interfaces;
 using StudyVerseBackend.Models.Authenticate;
+using StudyVerseBackend.Models.Friends;
 
 namespace StudyVerseBackend.Controllers;
 
@@ -18,8 +23,9 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
 {
 
     [HttpPost("signup")]
-    public async Task<IActionResult> Register(RegistrationDto registrationDto)
+    public async Task<IActionResult> Register([FromForm] RegistrationDto registrationDto)
     {
+        TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
         if (ModelState.IsValid)
         {
             // This code verifies the email and username have not been taken.
@@ -33,7 +39,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             existedUser = await userManager.FindByEmailAsync(registrationDto.Email);
             if (existedUser != null)
             {
-                ModelState.AddModelError("error", "Email is already being registered.");
+                ModelState.AddModelError("error", "Email is already registered.");
                 return BadRequest(ModelState);
             }
 
@@ -41,7 +47,7 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             {
                 UserName = registrationDto.UserName,
                 Email = registrationDto.Email,
-                Name = registrationDto.Name,
+                Name = myTI.ToTitleCase(registrationDto.Name),
                 Avatar_Url = registrationDto.Avatar_Url,
                 SecurityStamp = Guid.NewGuid().ToString()
             };
@@ -54,11 +60,11 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             // POST/create the object in the database
             var result = await userManager.CreateAsync(user, registrationDto.Password);
 
-            var signedInUser = userManager.FindByEmailAsync(registrationDto.Email);
+            var signedInUser = await userManager.FindByEmailAsync(registrationDto.Email);
 
-            if (result.Succeeded && signedInUser.IsCompleted)
+            if (result.Succeeded && signedInUser != null)
             {
-                var token = GenerateToken(registrationDto.Email, signedInUser.Result.Id);
+                var token = GenerateToken(registrationDto.Email, signedInUser.Id);
                 return Ok(new { token });
             }
 
@@ -91,12 +97,12 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             // If the user provided a username
             if (!String.IsNullOrEmpty(loginDto.UserName))
             {
-                var user = userManager.FindByNameAsync(loginDto.UserName);
-                if (user.Result != null)
+                var user = await userManager.FindByNameAsync(loginDto.UserName);
+                if (user != null)
                 {
-                    if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
+                    if (await userManager.CheckPasswordAsync(user, loginDto.Password))
                     {
-                        string? token = GenerateToken(user.Result.Email, user.Result.Id);
+                        string? token = GenerateToken(user.Email, user.Id);
                         return Accepted(new { token });
                     }
                 }
@@ -104,26 +110,164 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
 
             if (!String.IsNullOrEmpty(loginDto.Email))
             {
-                var user = userManager.FindByEmailAsync(loginDto.Email);
-                if (user.Result != null)
+                var user = await userManager.FindByEmailAsync(loginDto.Email);
+                if (user != null)
                 {
-                    if (await userManager.CheckPasswordAsync(user.Result, loginDto.Password))
+                    if (await userManager.CheckPasswordAsync(user, loginDto.Password))
                     {
-                        string? token = GenerateToken(user.Result.Email, user.Result.Id);
+                        string? token = GenerateToken(user.Email, user.Id);
                         return Accepted(new { token });
                     }
+                    else
+                    {
+                        ModelState.AddModelError("error", "No user found with this email and password combo.");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("error", "User not found with this email. Please create an account.");
                 }
             }
 
-            ModelState.AddModelError("error", "Invalid email/username or password.");
+
         }
 
-        if (!isMissingIdentifier)
+        if (isMissingIdentifier)
         {
             ModelState.AddModelError("error", "Missing username or email. Cannot proceed with authentication.");
         }
 
         return BadRequest(ModelState);
+    }
+
+    [HttpGet("verify")]
+    // Endpoint request: .../api/authenticate/verify?Field=Email&Value=YESSIR
+    public async Task<IActionResult> Verify([FromQuery] VerifyField verifyFields)
+    {
+        if (!verifyFields.Field.Equals("Email") && !verifyFields.Field.Equals("Username"))
+        {
+            ModelState.AddModelError("error", "Missing email or username as a search query.");
+            return BadRequest(ModelState);
+        }
+
+        bool isValid = false;
+
+        if (verifyFields.Field.Equals("Email"))
+        {
+            User? user = await userManager.FindByEmailAsync(verifyFields.Value);
+            if (user == null)
+            {
+                isValid = true;
+            }
+        }
+        else
+        {
+            User? user = await userManager.FindByNameAsync(verifyFields.Value);
+            if (user == null)
+            {
+                isValid = true;
+            }
+        }
+
+
+        return Ok(new { isValid });
+    }
+
+    [HttpGet("search")]
+    // GET: /api/authenticate/search?username=[username]
+    public async Task<ActionResult<IEnumerable<UserFriendRes>>> SearchByUserName([FromQuery] string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            var allUsers = await userManager.Users
+                .OrderBy(u => u.NormalizedUserName)
+                .Take(5)
+                .Select(u => new UserFriendRes
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Username = u.UserName,
+                    Planet = u.PlanetStatus.ToString(),
+                    AvatarUrl = u.Avatar_Url
+                })
+                .ToListAsync();
+
+            return Ok(allUsers);
+        }
+
+        string normalizedUsername = username.ToUpper();
+
+        var users = await userManager.Users
+            .Where(u => u.NormalizedUserName.StartsWith(normalizedUsername))
+            .Take(5)
+            .Select(u => new UserFriendRes
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Username = u.UserName,
+                Planet = u.PlanetStatus.ToString(),
+                AvatarUrl = u.Avatar_Url
+            })
+            .ToListAsync();
+
+        return Ok(users);
+    }
+    
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetCurrentUserProfile()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Missing authentication token");
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var profile = new ProfileResDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Username = user.UserName,
+            Email = user.Email,
+            AvatarUrl = user.Avatar_Url,
+            Planet = user.PlanetStatus.ToString(),
+        };
+
+        return Ok(profile);
+    }
+
+    [HttpDelete("delete-account")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Missing authentication token");
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var result = await userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest("Failed to delete the account.");
+        }
+
+        return Ok("Account deleted successfully.");
     }
 
 
@@ -142,8 +286,8 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
                 new Claim(ClaimTypes.NameIdentifier, userId),
                 new Claim(ClaimTypes.Email, email),
             }),
-            // Set the token to expire one day later, will be changed later
-            Expires = DateTime.UtcNow.AddDays(1),
+            // Set the token to expire thirty day later, will be changed later
+            Expires = DateTime.UtcNow.AddDays(30),
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)

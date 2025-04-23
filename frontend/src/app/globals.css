@@ -1,4 +1,270 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@plugin "daisyui";
+body {
+	font-family: Helvetica, sans-serif;
+}
+
+.active {
+	background-color: #ffffff;
+}
+
+nav {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #0a0a1a;
+	opacity: 0.8;
+	color: white;
+	position: static;
+	top: 0;
+	border-bottom: 1px solid black;
+	margin-bottom: 1.5rem;
+}
+
+nav .logo img {
+	width: 80px;
+	height: 80px;
+}
+
+nav ul {
+	display: flex;
+}
+
+nav ul li {
+	list-style: none;
+}
+
+nav ul li a {
+	display: block;
+	text-decoration: none;
+	color: white;
+	padding: 0.75rem;
+	margin: 0 0.5rem;
+	border-radius: 0.5rem;
+}
+
+/* Regular anchor tag hover style */
+nav ul li a:not(.active):hover {
+	color: #5f5e5f;
+}
+
+.emphasized-btn {
+	background-color: #000000;
+	color: #ffffff;
+	padding: 0.75rem 2rem;
+	border-radius: 0.5rem;
+	text-decoration: none;
+}
+
+.emphasized-btn:hover {
+	cursor: pointer;
+}
+
+nav .menu {
+	display: none;
+	position: absolute;
+	top: 2.5%;
+	right: 5%;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 2.25rem;
+	height: 2rem;
+}
+
+nav .menu span {
+	height: 0.4rem;
+	width: 100%;
+	background-color: #fffcfc;
+	border-radius: 0.2rem;
+}
+
+/* Media Query for navbar */
+@media (max-width: 600px) {
+	nav .menu {
+		display: flex;
+	}
+
+	nav #userIconNav {
+		display: none;
+	}
+
+	nav {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	nav ul {
+		display: none;
+		flex-direction: column;
+		width: 100%;
+		margin-bottom: 0.25rem;
+	}
+
+	nav ul li a:not(.active):hover {
+		background-color: #fffdfd;
+	}
+
+	nav a img {
+		width: 60px;
+		height: 60px;
+	}
+
+	nav ul.open {
+		display: flex;
+		padding-left: 0;
+	}
+
+	nav ul li {
+		width: 100%;
+		text-align: center;
+	}
+
+	nav ul li a {
+		margin: 0.2rem 0.5rem;
+		padding: 0.5rem;
+	}
+
+	nav .emphasized-btn {
+		background-color: white;
+		color: #000000;
+	}
+}
+
+/*
+BasicStepPage.tsx
+ */
+.step1-field .signup-fields {
+	margin-top: 1.1rem;
+}
+
+body {
+	font-family: "Orbitron", "Segoe UI", sans-serif;
+	background-color: #0d0f1b;
+	color: #eaeaea;
+	margin: 0;
+	padding: 0;
+	line-height: 1.6;
+}
+
+/* Paragraphs */
+p {
+	color: #c9c9ff;
+	font-size: 1rem;
+	margin-bottom: 1em;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: #e4d9ff;
+	font-family: "Orbitron", "Segoe UI", sans-serif;
+	margin-top: 1.4em;
+	margin-bottom: 0.5em;
+}
+
+h1 {
+	font-size: 2.5rem;
+	letter-spacing: 0.08em;
+	font-weight: 800;
+}
+
+#landing-page h1 {
+	font-size: 3.5rem; /* Smaller size for small screens */
+	text-align: center;
+}
+
+h2 {
+	font-size: 2rem;
+	letter-spacing: 0.06em;
+	font-weight: 700;
+}
+
+h3 {
+	font-size: 1.75rem;
+	letter-spacing: 0.04em;
+	font-weight: 600;
+}
+
+#landing-page h3 {
+	font-size: 1.75rem;
+	letter-spacing: 0.04em;
+	font-weight: 90;
+	color: #fffcfc;
+	text-align: center;
+}
+
+h4,
+h5,
+h6 {
+	font-weight: 500;
+	color: #b4a7ff;
+}
+
+/* Links */
+a {
+	color: #8be9fd;
+	text-decoration: none;
+	transition: color 0.3s ease;
+}
+
+a:hover {
+	color: #bd93f9;
+	text-shadow: 0 0 8px #8be9fd;
+}
+
+#container {
+	text-align: center;
+}
+#sign-in-btn {
+	background: linear-gradient(135deg, #4b6cb7, #182848);
+	color: white;
+	padding: 15px 30px;
+	border: none;
+	border-radius: 10px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: 0.3s, transform 0.2s;
+}
+
+#sign-in-btn:hover {
+	background: linear-gradient(135deg, #667eea, #764ba2);
+	transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+	#landing-page h1 {
+		font-size: 3.5rem; /* Smaller size for small screens */
+	}
+
+	#landing-page h3 {
+		font-size: 1.15rem;
+		letter-spacing: 0.04em;
+		font-weight: 90;
+		color: #fffcfc;
+		text-align: center;
+	}
+}
+
+/**
+FULL CALENDAR STUFF
+**/
+
+/* Example to change all day cell text and event text color */
+.fc {
+	color: #e4d9ff; /* Light purple */
+}
+
+.fc-daygrid-day-number {
+	color: white;
+}
+
+.fc-col-header-cell-cushion {
+	color: black; /* Light purple */
+}
+
+.fc-event {
+	background-color: inherit;
+	border: none;
+}
