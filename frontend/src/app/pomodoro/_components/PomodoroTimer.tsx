@@ -13,7 +13,7 @@ import {PomodoroDTO, PomodoroDTOPost} from "@/app/pomodoro/pomodoroDTO";
 import dayjs from "dayjs";
 import {
 	createPomodoro,
-	deletePomodoroSession,
+	deletePomodoroSession, resumePomodoroSession,
 	updatePomodoroSession,
 
 } from "@/app/pomodoro/pomodoroAPIHelpers";
@@ -44,7 +44,7 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			// reflect the pomodoro session
 			setTitle(pomodoroSession.title);
 			const now = dayjs();
-			const due = dayjs(pomodoroSession.dueTime);
+			const due = dayjs(pomodoroSession.finishingTimeStamp);
 
 			const diffInSeconds = due.diff(now, "second");
 
@@ -93,7 +93,8 @@ if (session?.sessionId) {
 
 			const updatedSession: PomodoroDTO = {
 				...session,
-				dueTime: newDueTime,
+				finishingTimeStamp: newDueTime,
+				isPaused: true
 			};
 
 			// Update local session state
@@ -108,12 +109,27 @@ if (session?.sessionId) {
 				console.error("Failed to update session:",error);
 			}
 
-
-
 			setIsRunning(false);
 		}
 	};
 
+
+	const handleResume = async (sessionId: number) => {
+		try {
+			const resumedSession = await resumePomodoroSession(sessionId, secondsLeft);
+
+			// @ts-ignore
+			if (resumedSession) {
+				setSession(resumedSession);
+				setIsRunning(true);
+			} else {
+				console.log(resumedSession);
+				alert("Error resuming session. Please try again.");
+			}
+		} catch (error) {
+			console.error("Failed to resume session:", error);
+		}
+	}
 
 	const handleStart = async () => {
 		// default time is 25 minutes, but add 5 seconds to account for server delay.
@@ -124,12 +140,17 @@ if (session?.sessionId) {
 			dueTime: newDueTime.toISOString(),
 		};
 
+		if (!model.title) {
+			alert("Please enter a title for your pomodoro session.");
+			return;
+		}
+
 		try {
 			const data = await createPomodoro(model);
 			console.log("Created pomodoro session:", data);
 
 			// Ideally you would return the data from the backend here.
-			setSession({sessionId: data.sessionId, dueTime: data.dueTime, title: data.title, isPaused: false});
+			setSession({sessionId: data.sessionId, finishingTimeStamp: data.finishingTimeStamp, title: data.title, isPaused: false});
 
 			// start the actual timer.
 			setIsRunning(true);
@@ -161,7 +182,7 @@ if (session?.sessionId) {
 						<Typography variant="h3">{formatTime(secondsLeft)}</Typography>
 					</Box>
 					<Box sx={{ display: "flex", justifyContent: "space-between" }}>
-						{!isRunning && (
+						{!isRunning && !session?.isPaused && (
 							<Button
 								variant="contained"
 								color="primary"
@@ -169,6 +190,16 @@ if (session?.sessionId) {
 								sx={{ flex: 1, mr: 1 }}
 							>
 								Start
+							</Button>
+						)}
+						{!isRunning && session?.isPaused && (
+							<Button
+								variant="contained"
+								color="success"
+								onClick={() => handleResume(session.sessionId)}
+								sx={{ flex: 1, mr: 1 }}
+							>
+								Resume
 							</Button>
 						)}
 						{isRunning && (
