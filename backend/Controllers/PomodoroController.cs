@@ -236,6 +236,20 @@ namespace StudyVerseBackend.Controllers
         public async Task<ActionResult<bool>> DeletePomodoroSession(int id)
 
         {
+            /*
+             * Deletes a specific Pomodoro session.
+             *
+             * Verifies the session exists and belongs to the authenticated user
+             * before deletion.
+             *
+             * Parameters:
+             * - id: The ID of the session to delete (route parameter)
+             *
+             * Returns:
+             * - HTTP 200 OK with boolean true if deletion was successful
+             * - HTTP 401 Unauthorized if the authentication token is invalid
+             * - HTTP 404 Not Found if the session doesn't exist or access is denied
+             */
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
             var result = await _pomodoroSessionService.DeletePomodoroSession(id);
