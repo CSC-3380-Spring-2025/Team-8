@@ -188,6 +188,27 @@ namespace StudyVerseBackend.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<PomodoroSession>> UpdatePomodoroSession(int id, PomodoroSessionDto sessionDto)
         {
+            /*
+             * Updates an existing Pomodoro session.
+             *
+             * Verifies the session exists and belongs to the authenticated user
+             * before applying updates. All fields in the DTO are optional except
+             * for the session ID.
+             *
+             * Parameters:
+             * - id: The ID of the session to update (route parameter)
+             *
+             * Request Body (PomodoroSessionDto):
+             * - SessionId: Must match the route parameter
+             * - FinishingTimeStamp: New end time for the session
+             * - Title: New title for the session
+             * - IsPaused: New pause status
+             *
+             * Returns:
+             * - HTTP 200 OK with the updated PomodoroSession entity
+             * - HTTP 401 Unauthorized if the authentication token is invalid
+             * - HTTP 404 Not Found if the session doesn't exist or access is denied
+             */
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
