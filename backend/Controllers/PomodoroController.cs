@@ -75,6 +75,23 @@ namespace StudyVerseBackend.Controllers
         [HttpPut("resume/{id}")]
         public async Task<ActionResult<PomodoroSessionDto>> ResumePomodoroSession(int id, [FromBody] int secondsLeft)
         {
+            /*
+             * Resumes a paused Pomodoro session and updates its remaining duration.
+             *
+             * This endpoint:
+             * 1. Verifies the session exists and belongs to the authenticated user
+             * 2. Sets IsPaused to false
+             * 3. Updates the FinishingTimeStamp based on the provided secondsLeft
+             *
+             * Parameters:
+             * - id: The ID of the session to resume (route parameter)
+             * - secondsLeft: The remaining duration in seconds (request body)
+             *
+             * Returns:
+             * - HTTP 200 OK with the updated PomodoroSessionDto if successful
+             * - HTTP 401 Unauthorized if the authentication token is invalid
+             * - HTTP 404 Not Found if the session doesn't exist or doesn't belong to user
+             */
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
@@ -106,6 +123,20 @@ namespace StudyVerseBackend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PomodoroSession>> GetPomodoroSession(int id)
         {
+            /*
+             * Retrieves a specific Pomodoro session by its ID.
+             *
+             * The endpoint verifies that the session exists and belongs to the
+             * authenticated user before returning it.
+             *
+             * Parameters:
+             * - id: The ID of the session to retrieve (route parameter)
+             *
+             * Returns:
+             * - HTTP 200 OK with the complete PomodoroSession entity if found
+             * - HTTP 401 Unauthorized if the authentication token is invalid
+             * - HTTP 404 Not Found if the session doesn't exist or access is denied
+             */
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
             var session = await _pomodoroSessionService.GetPomodoroSessionById(id);
