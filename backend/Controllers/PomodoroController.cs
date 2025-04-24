@@ -152,6 +152,22 @@ namespace StudyVerseBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<PomodoroSession>> CreatePomodoroSession(PomodoroSessionPost sessionDto)
         {
+            /*
+             * Creates a new Pomodoro session for the authenticated user.
+             *
+             * The new session is created in a paused state with the specified
+             * duration and optional title. The user ID is automatically set from
+             * the authentication token.
+             *
+             * Request Body (PomodoroSessionPost):
+             * - DueTime: The planned end time for the session (required)
+             * - Title: An optional descriptive title for the session
+             *
+             * Returns:
+             * - HTTP 201 Created with the new PomodoroSession entity
+             *   (Includes Location header pointing to the new resource)
+             * - HTTP 401 Unauthorized if the authentication token is invalid
+             */
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
