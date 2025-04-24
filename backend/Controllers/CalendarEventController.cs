@@ -12,8 +12,6 @@ using System.Threading.Tasks;
 
 using StudyVerseBackend.Models.CalendarEvents;
 
-
-
 namespace StudyVerseBackend.Controllers
 {
     [Route("api/calendar")]
@@ -30,10 +28,21 @@ namespace StudyVerseBackend.Controllers
             _userManager = userManager;
         }
 
-        // GET: api/calendar (Get all events for logged-in user)
+        // GET: api/calendar
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CalendarEventDto>>> GetUserEvents()
         {
+            /*
+             * Retrieves all calendar events associated with the currently authenticated user.
+             *
+             * This endpoint identifies the user via their JWT token, queries the database for all events
+             * that match their user ID, and returns a list of simplified CalendarEventDto objects.
+             *
+             * Returns:
+             * - HTTP 200 OK with a list of the user's events if successful.
+             * - HTTP 401 Unauthorized if no valid token is provided.
+             */
+
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
@@ -52,10 +61,22 @@ namespace StudyVerseBackend.Controllers
             return Ok(events);
         }
 
-        // GET: api/calendar/{id} (Get specific event by ID)
+        // GET: api/calendar/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<CalendarEvent>> GetEventById(int id)
         {
+            /*
+             * Retrieves a specific calendar event by its ID for the authenticated user.
+             *
+             * Inputs:
+             * - id (int): The ID of the calendar event to retrieve.
+             *
+             * Returns:
+             * - HTTP 200 OK with the full CalendarEvent object if found and owned by the user.
+             * - HTTP 401 Unauthorized if no valid token is provided.
+             * - HTTP 404 Not Found if the event doesn't exist or doesn't belong to the user.
+             */
+
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
@@ -68,53 +89,90 @@ namespace StudyVerseBackend.Controllers
             return Ok(calendarEvent);
         }
 
+        // POST: api/calendar
         [HttpPost]
-public async Task<ActionResult<CalendarEvent>> CreateEvent(CalendarEventDto calendarEventDto)
-{
-    var userId = GetUserIdFromToken();
-    if (userId == null) return Unauthorized("Invalid User Token");
+        public async Task<ActionResult<CalendarEvent>> CreateEvent(CalendarEventDto calendarEventDto)
+        {
+            /*
+             * Creates a new calendar event for the authenticated user.
+             *
+             * Inputs:
+             * - calendarEventDto (CalendarEventDto): Contains the title, description, event date, and event type.
+             *
+             * Returns:
+             * - HTTP 201 Created with the created CalendarEvent object.
+             * - HTTP 401 Unauthorized if no valid token is provided.
+             */
 
-    var calendarEvent = new CalendarEvent
-    {
-        UserId = userId,
-        Title = calendarEventDto.Title,
-        Description = calendarEventDto.Description,
-        EventDate = calendarEventDto.EventDate,
-        EventType = calendarEventDto.EventType
-    };
+            var userId = GetUserIdFromToken();
+            if (userId == null) return Unauthorized("Invalid User Token");
 
-    _context.CalendarEvents.Add(calendarEvent);
-    await _context.SaveChangesAsync();
+            var calendarEvent = new CalendarEvent
+            {
+                UserId = userId,
+                Title = calendarEventDto.Title,
+                Description = calendarEventDto.Description,
+                EventDate = calendarEventDto.EventDate,
+                EventType = calendarEventDto.EventType
+            };
 
-    return CreatedAtAction(nameof(GetEventById), new { id = calendarEvent.EventId }, calendarEvent);
-}
+            _context.CalendarEvents.Add(calendarEvent);
+            await _context.SaveChangesAsync();
 
+            return CreatedAtAction(nameof(GetEventById), new { id = calendarEvent.EventId }, calendarEvent);
+        }
+
+        // PUT: api/calendar/{id}
         [HttpPut("{id}")]
-public async Task<IActionResult> UpdateEvent(int id, CalendarEventDto calendarEventDto)
-{
-    var userId = GetUserIdFromToken();
-    if (userId == null) return Unauthorized("Invalid User Token");
+        public async Task<IActionResult> UpdateEvent(int id, CalendarEventDto calendarEventDto)
+        {
+            /*
+             * Updates an existing calendar event by its ID for the authenticated user.
+             *
+             * Inputs:
+             * - id (int): The ID of the calendar event to update.
+             * - calendarEventDto (CalendarEventDto): The updated event details (title, description, date, type).
+             *
+             * Returns:
+             * - HTTP 204 No Content if the update is successful.
+             * - HTTP 401 Unauthorized if no valid token is provided.
+             * - HTTP 404 Not Found if the event doesn't exist or doesn't belong to the user.
+             */
 
-    var existingEvent = await _context.CalendarEvents.FindAsync(id);
-    if (existingEvent == null || existingEvent.UserId != userId)
-    {
-        return NotFound("Event not found or unauthorized access.");
-    }
+            var userId = GetUserIdFromToken();
+            if (userId == null) return Unauthorized("Invalid User Token");
 
-    existingEvent.Title = calendarEventDto.Title;
-    existingEvent.Description = calendarEventDto.Description;
-    existingEvent.EventDate = calendarEventDto.EventDate;
-    existingEvent.EventType = calendarEventDto.EventType;
+            var existingEvent = await _context.CalendarEvents.FindAsync(id);
+            if (existingEvent == null || existingEvent.UserId != userId)
+            {
+                return NotFound("Event not found or unauthorized access.");
+            }
 
-    await _context.SaveChangesAsync();
-    return NoContent();
-}
+            existingEvent.Title = calendarEventDto.Title;
+            existingEvent.Description = calendarEventDto.Description;
+            existingEvent.EventDate = calendarEventDto.EventDate;
+            existingEvent.EventType = calendarEventDto.EventType;
 
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
-        // DELETE: api/calendar/{id} (Delete an event)
+        // DELETE: api/calendar/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEvent(int id)
         {
+            /*
+             * Deletes a calendar event by its ID for the authenticated user.
+             *
+             * Inputs:
+             * - id (int): The ID of the calendar event to delete.
+             *
+             * Returns:
+             * - HTTP 204 No Content if deletion is successful.
+             * - HTTP 401 Unauthorized if no valid token is provided.
+             * - HTTP 404 Not Found if the event doesn't exist or doesn't belong to the user.
+             */
+
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
@@ -129,9 +187,16 @@ public async Task<IActionResult> UpdateEvent(int id, CalendarEventDto calendarEv
             return NoContent();
         }
 
-        // Extract User ID from JWT Token
+        // Helper method to extract the user ID from the JWT token
         private string? GetUserIdFromToken()
         {
+            /*
+             * Extracts the user's ID from the JWT token in the request header.
+             *
+             * Returns:
+             * - The user ID string if found in the token.
+             * - null if the token is missing or does not contain a user ID claim.
+             */
             return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     }
