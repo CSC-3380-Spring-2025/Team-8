@@ -106,6 +106,7 @@ export default function LoginForm() {
                     variant="contained"
                     sx={{
                         marginTop: 3,
+                        marginBottom: 2
                     }} 
                     style={{
                         borderRadius: 34,
@@ -123,7 +124,7 @@ export default function LoginForm() {
             </Box>
             <Divider>or</Divider>
             <Button fullWidth variant="contained" sx={{
-                marginY: 3
+                marginY: 4
             }}>
                 Create An Account!
             </Button>

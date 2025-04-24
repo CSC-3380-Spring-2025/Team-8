@@ -72,6 +72,8 @@ export default function SendGalaxyBoost() {
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
+		const form = e.currentTarget;
+
 		const data = new FormData(e.currentTarget);
 
 		let userMessage = data.get("message")?.toString();
@@ -96,7 +98,7 @@ export default function SendGalaxyBoost() {
 					receiver_id: "",
 					message: "",
 				});
-				e.currentTarget.reset();
+				form.reset();
 			}
 		} catch (err) {
 			console.error("Error sending Galaxy Boost:", err);
