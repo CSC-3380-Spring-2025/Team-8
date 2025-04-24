@@ -24,6 +24,20 @@ namespace StudyVerseBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<List<PomodoroSessionDto>>> GetAllPomodoroSessions()
         {
+            /*
+             * Retrieves all Pomodoro sessions belonging to the authenticated user.
+             *
+             * This endpoint extracts the user ID from the JWT token and returns every
+             * Pomodoro session associated with that user, regardless of status.
+             *
+             * Returns:
+             * - HTTP 200 OK with a list of PomodoroSessionDto objects containing:
+             *   - SessionId: Unique identifier for the session
+             *   - FinishingTimeStamp: When the session is scheduled to end
+             *   - Title: Optional descriptive title
+             *   - IsPaused: Current pause status
+             * - HTTP 401 Unauthorized if the authentication token is invalid
+             */
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
             var sessions = await _pomodoroSessionService.GetAllPomodoroSessions(userId);
@@ -37,6 +51,7 @@ namespace StudyVerseBackend.Controllers
         [HttpGet("active")]
         public async Task<ActionResult<List<PomodoroSessionDto>>> GetActiveSessions()
         {
+            
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
 
