@@ -10,6 +10,7 @@ import {
 	Tooltip,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
+import {deleteTask, updateTask} from "@/app/tasks/api/taskAPIHelpers";
 
 export default function RecentTasksView({ tasks }: { tasks: TaskDto[] }) {
 	const [sortedTasks, setSortedTasks] = useState<TaskDto[]>([]);
@@ -24,16 +25,53 @@ export default function RecentTasksView({ tasks }: { tasks: TaskDto[] }) {
 		setSortedTasks(sorted);
 	}, [tasks]);
 
-	const handleToggleCompleted = (taskId: number) => {
-		setSortedTasks((prev) =>
-			prev.map((task) =>
-				task.id === taskId
-					? { ...task, isCompleted: !task.isCompleted }
-					: task
-			)
-		);
-		console.log(sortedTasks.filter((task) => task.id === taskId));
+	const handleToggleCompleted = async (taskId: number) => {
+		// Find the task first from current state
+		const taskToUpdate = sortedTasks.find((task) => task.id === taskId);
+
+		if (!taskToUpdate) return;
+
+		// Create the updated task with toggled completion status
+		const updatedTask = {
+			...taskToUpdate,
+			isCompleted: !taskToUpdate.isCompleted
+		};
+
+		try {
+			// Send the updated task to the server first
+			const data = await updateTask(taskId, updatedTask);
+
+			if (data) {
+				// Only update the UI if the server update was successful
+				setSortedTasks((prev) =>
+					prev.map((task) =>
+						task.id === taskId ? updatedTask : task
+					)
+				);
+			} else {
+				console.error("Failed to update task");
+				alert("Issue updating task");
+			}
+		} catch (error) {
+			console.error("Error updating task:", error);
+			alert("Failed to update task");
+		}
 	};
+
+	async function handleDelete(taskId: number) {
+		try {
+			await deleteTask(taskId);
+
+			// Remove the task from the UI after successful deletion
+			setSortedTasks((prev) =>
+				prev.filter((task) => task.id !== taskId)
+			);
+			console.log("Deleting task");
+		} catch (error) {
+			console.error("Error deleting task:", error);
+			alert("Failed to delete task");
+		}
+	}
 
 	return (
 		<>
@@ -58,7 +96,7 @@ export default function RecentTasksView({ tasks }: { tasks: TaskDto[] }) {
 								onChange={() => handleToggleCompleted(task.id)}
 							/>
 							<Tooltip title={"Delete task"}>
-								<Delete />
+								<Delete onClick={() => handleDelete(task.id)}/>
 							</Tooltip>
 						</ListItem>
 					))}

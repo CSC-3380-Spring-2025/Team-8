@@ -132,7 +132,7 @@ export default function RegistrationStepper() {
             {activeStep === steps.length ? (
                 <>
                     <Typography sx={{mt: 2, mb: 1}}>
-                        Confirm your information.
+                        A New Galaxy Awaits – Get Ready To TAKE OFF!
                     </Typography>
                     <Box sx={{display: 'flex', flexDirection: 'row', pt: 2}}>
                         <Box sx={{flex: '1 1 auto'}}/>

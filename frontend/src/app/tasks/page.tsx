@@ -14,67 +14,30 @@ import {
 	TextField,
 } from "@mui/material";
 import CalendarComponent from "@/app/tasks/_components/CalendarComponent";
-import {CalendarEventDto, TaskDto} from "@/app/tasks/taskDtos";
+import { CalendarEventDto, TaskDto } from "@/app/tasks/taskDtos";
 import RecentEventsView from "@/app/tasks/_components/RecentEventsView";
 import RecentTasksView from "@/app/tasks/_components/RecentTasksView";
-import {AddTask} from "@mui/icons-material";
-import {useEffect, useState} from "react";
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import { AddTask } from "@mui/icons-material";
+import { useEffect, useState } from "react";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import TaskListView from "./_components/TaskListView";
-import {createTask, getAllTasks} from "@/app/tasks/api/taskAPIHelpers";
+import { createTask, getAllTasks } from "@/app/tasks/api/taskAPIHelpers";
+import { getCalendarEvents } from "@/app/tasks/api/calendarAPIHelpers";
 
 export default function Page() {
-	const mockEvents: CalendarEventDto[] = [
-		{
-			eventDate: "2025-04-10",
-			title: "Team Standup Meeting",
-			description: "Daily team sync-up to discuss progress",
-			eventType: "Meeting",
-			id: 6,
-		},
-		{
-			eventDate: "2025-04-12",
-			title: "Project Deadline",
-			description: "Submit final project deliverables",
-			eventType: "Deadline",
-			id: 1,
-		},
-		{
-			eventDate: "2025-04-15",
-			title: "Doctor Appointment",
-			description: "Routine checkup at 10:00 AM",
-			eventType: "Personal",
-			id: 2,
-		},
-		{
-			eventDate: "2025-04-18",
-			title: "Hackathon",
-			description: "Join the 24-hour university hackathon",
-			eventType: "Event",
-			id: 3,
-		},
-		{
-			eventDate: "2025-04-22",
-			title: "Earth Day Cleanup",
-			description: "Volunteer for local park cleanup",
-			eventType: "Volunteer",
-			id: 4,
-		},
-	];
-
 	const [modalOpen, setModalOpen] = useState(false);
 	const [selectedTask, setSelectedTask] = useState<TaskDto>({
 		id: 0,
 		title: "",
 		description: "",
 		isCompleted: false,
-		dueDate: "",
+		dueDate: null,
 		priority: 1,
 	});
 
-	const [events, setEvents] = useState<CalendarEventDto[]>(mockEvents);
+	const [events, setEvents] = useState<CalendarEventDto[]>([]);
 	const [tasks, setTasks] = useState<TaskDto[]>([]);
 
 	useEffect(() => {
@@ -87,13 +50,15 @@ export default function Page() {
 				 * TODO: Marcus add your await call for getting all the calendar events here
 				 * then call the state function (aka: setEvents) with the new data,
 				 */
+
+				const calendarData = await getCalendarEvents();
+				setEvents(calendarData);
 			} catch (error) {
 				console.error("Error fetching tasks:", error);
 			}
 		};
 		fetchData();
 	}, []);
-
 
 	/*
     Code pertaining to the modal dialog for adding a new task.
@@ -114,11 +79,12 @@ export default function Page() {
 				description: "",
 				isCompleted: false,
 				dueDate: "",
-				priority: 0,
+				priority: 3,
 			});
 			setModalOpen(false);
 		} catch (error) {
 			// Handle any errors during the API call
+			alert("Error saving task. Please try again.");
 			console.error("Error saving task:", error);
 		}
 	};
@@ -198,7 +164,7 @@ export default function Page() {
 								if (newValue) {
 									setSelectedTask({
 										...selectedTask,
-										dueDate: newValue.toISOString(),
+										dueDate: newValue.format("YYYY-MM-DD"),
 									});
 								}
 							}}
@@ -239,7 +205,7 @@ export default function Page() {
 							aria-label="Priority"
 							onChange={(e, newValue) => {
 								// map that value from one to three
-								let priority = 0;
+								let priority = 3;
 								if (newValue === 100) priority = 1;
 								else if (newValue === 50) priority = 2;
 								else if (newValue === 0) priority = 3;
@@ -258,5 +224,4 @@ export default function Page() {
 			</Dialog>
 		</>
 	);
-
 }

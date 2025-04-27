@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using PlannerApi.DTOs;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
@@ -58,7 +59,6 @@ namespace PlannerApi.Controllers
              * - HTTP 200 OK with a list of the user's tasks.
              * - HTTP 401 Unauthorized if no valid JWT token is provided.
              */
-            
             string? userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -72,7 +72,7 @@ namespace PlannerApi.Controllers
                 {
                     Id = task.Id,
                     Description = task.Description,
-                    DueDate = task.DueDate,
+                    DueDate = task.DueDate.HasValue ? task.DueDate : null,
                     IsCompleted = task.IsCompleted,
                     Title = task.Title,
                     Priority = task.Priority
@@ -110,8 +110,10 @@ namespace PlannerApi.Controllers
                 UserId = userId,
                 Title = taskItem.Title,
                 Description = taskItem.Description,
+                IsCompleted = false,
+                DueDate = taskItem.DueDate.HasValue ? taskItem.DueDate : null,
                 Priority = taskItem.Priority,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Tasks.Add(task);
@@ -167,11 +169,11 @@ namespace PlannerApi.Controllers
             }
             else if (!existingTask.IsCompleted && taskItem.IsCompleted)
             {
-                existingTask.CompletedAt = DateTime.Now;
+                existingTask.CompletedAt = DateTime.UtcNow;
             }
 
             existingTask.IsCompleted = taskItem.IsCompleted;
-            existingTask.DueDate = taskItem.DueDate;
+            existingTask.DueDate = taskItem.DueDate.HasValue ? taskItem.DueDate : null;
 
             try
             {
@@ -186,7 +188,7 @@ namespace PlannerApi.Controllers
                 throw;
             }
 
-            return NoContent();
+            return CreatedAtAction(nameof(GetTask), new { id = existingTask.Id }, existingTask);
         }
 
         // DELETE: api/task/{id}

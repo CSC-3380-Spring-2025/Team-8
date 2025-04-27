@@ -1,6 +1,6 @@
 export type PomodoroDTO = {
     sessionId: number;
-    dueTime: string;
+    finishingTimeStamp: string;
     title: string;
     isPaused: boolean;
 }

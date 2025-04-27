@@ -11,7 +11,12 @@ import {
 } from "@mui/material";
 import {PomodoroDTO, PomodoroDTOPost} from "@/app/pomodoro/pomodoroDTO";
 import dayjs from "dayjs";
-import {createPomodoro} from "@/app/pomodoro/pomodoroAPIHelpers";
+import {
+	createPomodoro,
+	deletePomodoroSession, resumePomodoroSession,
+	updatePomodoroSession,
+
+} from "@/app/pomodoro/pomodoroAPIHelpers";
 
 const formatTime = (seconds: number): string => {
 	const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -39,7 +44,7 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			// reflect the pomodoro session
 			setTitle(pomodoroSession.title);
 			const now = dayjs();
-			const due = dayjs(pomodoroSession.dueTime);
+			const due = dayjs(pomodoroSession.finishingTimeStamp);
 
 			const diffInSeconds = due.diff(now, "second");
 
@@ -67,25 +72,29 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 		setTitle(e.target.value);
 	};
 
-	const resetTimer = (): void => {
+	const resetTimer = async (): Promise<void> => {
 		console.log("Resetting timer which the current ID is " + session?.sessionId);
 
-		/**
-		 * TODO: Queban call the method you made that deletes the Pomodoro session and
-		 * pass the session ID to that method, here.
-		 */
-
+if (session?.sessionId) {
+	try {
+		await deletePomodoroSession(session.sessionId);
+		console.log("Session deleted successfully");
+	} catch (error) {
+		console.error("Failed to delete session:", error);
+	}
+}
 		setSecondsLeft(25 * 60);
 		setIsRunning(false);
 	};
 
-	const handlePause = () => {
+	const handlePause = async () => {
 		if (session) {
 			const newDueTime = dayjs().add(secondsLeft, "second").toISOString();
 
 			const updatedSession: PomodoroDTO = {
 				...session,
-				dueTime: newDueTime,
+				finishingTimeStamp: newDueTime,
+				isPaused: true
 			};
 
 			// Update local session state
@@ -93,17 +102,34 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 
 			// SEND API REQUEST TO UPDATE BACKEND HERE
 			console.log("Pause updating dueTime to:", updatedSession);
-
-			/**
-			 * TODO: Queban call the method you made that updates the pomodoro session
-			 * in the database.
-			 * Then pass the updatedSession to that method to be updated.
-			 */
+			try {
+				await updatePomodoroSession(updatedSession);
+				console.log("Session successfully updated");
+			}catch (error){
+				console.error("Failed to update session:",error);
+			}
 
 			setIsRunning(false);
 		}
 	};
 
+
+	const handleResume = async (sessionId: number) => {
+		try {
+			const resumedSession = await resumePomodoroSession(sessionId, secondsLeft);
+
+			// @ts-ignore
+			if (resumedSession) {
+				setSession(resumedSession);
+				setIsRunning(true);
+			} else {
+				console.log(resumedSession);
+				alert("Error resuming session. Please try again.");
+			}
+		} catch (error) {
+			console.error("Failed to resume session:", error);
+		}
+	}
 
 	const handleStart = async () => {
 		// default time is 25 minutes, but add 5 seconds to account for server delay.
@@ -114,12 +140,17 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			dueTime: newDueTime.toISOString(),
 		};
 
+		if (!model.title) {
+			alert("Please enter a title for your pomodoro session.");
+			return;
+		}
+
 		try {
 			const data = await createPomodoro(model);
 			console.log("Created pomodoro session:", data);
 
 			// Ideally you would return the data from the backend here.
-			setSession({sessionId: data.sessionId, dueTime: data.dueTime, title: data.title, isPaused: false});
+			setSession({sessionId: data.sessionId, finishingTimeStamp: data.finishingTimeStamp, title: data.title, isPaused: false});
 
 			// start the actual timer.
 			setIsRunning(true);
@@ -135,7 +166,7 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 			<Card sx={{ width: 400, bgcolor: "#1a1e33", borderRadius: 4, boxShadow: 6, paddingX: 2, paddingY: 8 }}>
 				<CardContent>
 					<Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
-						🚀 Space Pomodoro
+						AstroFocus 🚀
 					</Typography>
 					<TextField
 						fullWidth
@@ -151,7 +182,7 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 						<Typography variant="h3">{formatTime(secondsLeft)}</Typography>
 					</Box>
 					<Box sx={{ display: "flex", justifyContent: "space-between" }}>
-						{!isRunning && (
+						{!isRunning && !session?.isPaused && (
 							<Button
 								variant="contained"
 								color="primary"
@@ -159,6 +190,16 @@ export default function SpacePomodoroTimer({pomodoroSession} : {pomodoroSession:
 								sx={{ flex: 1, mr: 1 }}
 							>
 								Start
+							</Button>
+						)}
+						{!isRunning && session?.isPaused && (
+							<Button
+								variant="contained"
+								color="success"
+								onClick={() => handleResume(session.sessionId)}
+								sx={{ flex: 1, mr: 1 }}
+							>
+								Resume
 							</Button>
 						)}
 						{isRunning && (

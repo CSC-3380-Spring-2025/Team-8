@@ -109,7 +109,7 @@ nav .menu span {
 
 	nav ul.open {
 		display: flex;
-		padding-left: 0px;
+		padding-left: 0;
 	}
 
 	nav ul li {
@@ -137,7 +137,7 @@ BasicStepPage.tsx
 
 body {
 	font-family: "Orbitron", "Segoe UI", sans-serif;
-	background-color: rgba(161, 0, 242, 0.719); /* (BACKGROUND COLOR UPDATE) */
+	background-color: #0d0f1b;
 	color: #eaeaea;
 	margin: 0;
 	padding: 0;
@@ -170,6 +170,11 @@ h1 {
 	font-weight: 800;
 }
 
+#landing-page h1 {
+	font-size: 3.5rem; /* Smaller size for small screens */
+	text-align: center;
+}
+
 h2 {
 	font-size: 2rem;
 	letter-spacing: 0.06em;
@@ -180,6 +185,14 @@ h3 {
 	font-size: 1.75rem;
 	letter-spacing: 0.04em;
 	font-weight: 600;
+}
+
+#landing-page h3 {
+	font-size: 1.75rem;
+	letter-spacing: 0.04em;
+	font-weight: 90;
+	color: #fffcfc;
+	text-align: center;
 }
 
 h4,
@@ -199,6 +212,39 @@ a {
 a:hover {
 	color: #bd93f9;
 	text-shadow: 0 0 8px #8be9fd;
+}
+
+#container {
+	text-align: center;
+}
+#sign-in-btn {
+	background: linear-gradient(135deg, #4b6cb7, #182848);
+	color: white;
+	padding: 15px 30px;
+	border: none;
+	border-radius: 10px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: 0.3s, transform 0.2s;
+}
+
+#sign-in-btn:hover {
+	background: linear-gradient(135deg, #667eea, #764ba2);
+	transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+	#landing-page h1 {
+		font-size: 3.5rem; /* Smaller size for small screens */
+	}
+
+	#landing-page h3 {
+		font-size: 1.15rem;
+		letter-spacing: 0.04em;
+		font-weight: 90;
+		color: #fffcfc;
+		text-align: center;
+	}
 }
 
 /**

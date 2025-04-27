@@ -22,7 +22,7 @@ namespace StudyVerseBackend.Controllers
 
         // GET: api/PomodoroSession
         [HttpGet]
-        public async Task<ActionResult<List<PomodoroSession>>> GetAllPomodoroSessions()
+        public async Task<ActionResult<List<PomodoroSessionDto>>> GetAllPomodoroSessions()
         {
             var userId = GetUserIdFromToken();
             if (userId == null) return Unauthorized("Invalid User Token");
@@ -47,12 +47,45 @@ namespace StudyVerseBackend.Controllers
                 .Select(ps => new PomodoroSessionDto
                 {
                     SessionId = ps.SessionId,
-                    DueTime = ps.FinishingTimeStamp,
-                    Title = ps.Title ?? ""
+                    FinishingTimeStamp = ps.FinishingTimeStamp,
+                    Title = ps.Title ?? "",
+                    IsPaused = ps.IsPaused
                 });
 
             return Ok(allActiveSessions);
         }
+        
+        // PUT: api/PomodoroSession/resume/5
+        // PUT: api/PomodoroSession/resume/5
+        [HttpPut("resume/{id}")]
+        public async Task<ActionResult<PomodoroSessionDto>> ResumePomodoroSession(int id, [FromBody] int secondsLeft)
+        {
+            var userId = GetUserIdFromToken();
+            if (userId == null) return Unauthorized("Invalid User Token");
+
+            var session = await _pomodoroSessionService.GetPomodoroSessionById(id);
+            if (session == null || session.UserId != userId)
+            {
+                return NotFound("Session not found or access denied.");
+            }
+
+            session.IsPaused = false;
+            session.FinishingTimeStamp = DateTime.UtcNow.AddSeconds(secondsLeft);
+
+            var updatedSession = await _pomodoroSessionService.UpdatePomodoroSession(id, session);
+
+            // Convert to DTO
+            var updatedDto = new PomodoroSessionDto
+            {
+                SessionId = updatedSession.SessionId,
+                FinishingTimeStamp = updatedSession.FinishingTimeStamp,
+                Title = updatedSession.Title,
+                IsPaused = updatedSession.IsPaused
+            };
+
+            return Ok(updatedDto);
+        }
+        
 
         // GET: api/PomodoroSession/5
         [HttpGet("{id}")]
@@ -81,6 +114,7 @@ namespace StudyVerseBackend.Controllers
                 UserId = userId,
                 FinishingTimeStamp = sessionDto.DueTime,
                 Title = sessionDto.Title,
+                IsPaused = true,
             };
 
             var createdSession = await _pomodoroSessionService.CreatePomodoroSession(newSession);
@@ -104,8 +138,10 @@ namespace StudyVerseBackend.Controllers
             }
 
             // Update fields from DTO
-            existingSession.FinishingTimeStamp = sessionDto.DueTime;
-            existingSession.Title = sessionDto.Title;
+            existingSession.FinishingTimeStamp = sessionDto.FinishingTimeStamp;
+            existingSession.Title = sessionDto.Title ?? "";
+            existingSession.IsPaused = sessionDto.IsPaused;
+            existingSession.UserId = userId;
 
             var updatedSession = await _pomodoroSessionService.UpdatePomodoroSession(id, existingSession);
 

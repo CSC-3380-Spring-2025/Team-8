@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using StudyVerseBackend.Entities;
+using StudyVerseBackend.Infastructure.Contexts;
 using StudyVerseBackend.Interfaces;
 using StudyVerseBackend.Models.Authenticate;
 using StudyVerseBackend.Models.Friends;
@@ -19,7 +20,7 @@ namespace StudyVerseBackend.Controllers;
 
 [ApiController]
 [Route("api/authenticate")]
-public class AccountController(UserManager<User> userManager, IEnvService env) : ControllerBase
+public class AccountController(UserManager<User> userManager, IEnvService env, ApplicationDbContext context) : ControllerBase
 {
 
     [HttpPost("signup")]
@@ -211,6 +212,91 @@ public class AccountController(UserManager<User> userManager, IEnvService env) :
             .ToListAsync();
 
         return Ok(users);
+    }
+    
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetCurrentUserProfile()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Missing authentication token");
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var profile = new ProfileResDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Username = user.UserName,
+            Email = user.Email,
+            AvatarUrl = user.Avatar_Url,
+            Planet = user.PlanetStatus.ToString(),
+        };
+
+        return Ok(profile);
+    }
+
+    [HttpDelete("delete-account")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Missing authentication token");
+        }
+
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        // Delete related entities (e.g., PomodoroSessions, Friends, etc.)
+        var pomodoroSessions = await context.PomodoroSessions
+            .Where(ps => ps.UserId == userId)
+            .ToListAsync();
+        context.PomodoroSessions.RemoveRange(pomodoroSessions);
+
+        var friendships = await context.Friends
+            .Where(f => f.RequestorId == userId || f.RecipientId == userId)
+            .ToListAsync();
+        context.Friends.RemoveRange(friendships);
+        
+        var calendarEvents = await context.CalendarEvents
+            .Where(ce => ce.UserId == userId)
+            .ToListAsync();
+        context.CalendarEvents.RemoveRange(calendarEvents);
+        
+        var tasks = await context.Tasks
+            .Where(t => t.UserId == userId)
+            .ToListAsync();
+        context.Tasks.RemoveRange(tasks);
+        
+        var galaxyBoosts = await context.GravityBoosts
+            .Where(gb => gb.Receiver_Id == userId || gb.Sender_Id == userId)
+            .ToListAsync();
+        context.GravityBoosts.RemoveRange(galaxyBoosts);
+        
+        await context.SaveChangesAsync();
+        
+        var result = await userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest("Failed to delete the account.");
+        }
+
+        return Ok("Account and related data deleted successfully.");
     }
 
 

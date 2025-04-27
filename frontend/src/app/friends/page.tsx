@@ -1,14 +1,15 @@
 "use client";
 
 import Navbar from "@/app/_global_components/Navbar";
-import {Box, Container, Tab, Tabs} from "@mui/material";
+import {Box, CircularProgress, Container, Tab, Tabs} from "@mui/material";
 import {ReactNode, SyntheticEvent, useEffect, useState} from "react";
 import FriendsStepper from "./components/FriendsStepper";
 import {TaskActivityView, UserFriendsRes} from "./friendsType";
 import GalaxyBoostStepper from "./components/GalaxyBoostStepper";
 import FriendActivityStepper from "./components/FriendActivityStepper";
 import {useQuery} from "@tanstack/react-query";
-import {getAllFriends, getPendingFriends} from "@/app/friends/friendAPIHelpers";
+import {getAllFriends, getFriendsActivity, getPendingFriends} from "@/app/friends/friendAPIHelpers";
+import {getGravityBoostData} from "@/app/tasks/api/gravityBoostAPIHelper";
 
 interface TabPanelProps {
     children?: ReactNode;
@@ -39,91 +40,6 @@ export default function Page() {
         setValue(newValue);
     };
 
-    const dummyFriends: UserFriendsRes[] = [
-        {
-            id: "1a2b3c4d-0001",
-            name: "NovaKnight",
-            planet: "Mars",
-            username: "nova_knight",
-        },
-        {
-            id: "1a2b3c4d-0002",
-            name: "StellarRay",
-            planet: "Venus",
-            username: "stellar_ray",
-        },
-        {
-            id: "1a2b3c4d-0003",
-            name: "CometChaser",
-            planet: "Jupiter",
-            username: "comet_chaser",
-        },
-    ];
-
-    const dummyGalaxyBoosts = [
-        {
-            sender_id: "1a2b3c4d-0001",
-            reciever_id: "9z8y7x6w-0001",
-            message: "Boosted your galaxy!",
-            sent_at: new Date().toString(),
-            sender_name: "NovaKnight",
-        },
-        {
-            sender_id: "1a2b3c4d-0002",
-            reciever_id: "9z8y7x6w-0002",
-            message: "Your galaxy is shining!",
-            sent_at: new Date().toString(),
-            sender_name: "StellarRay",
-        },
-        {
-            sender_id: "1a2b3c4d-0003",
-            reciever_id: "9z8y7x6w-0003",
-            message: "Your galaxy is shining!",
-            sent_at: new Date().toString(),
-            sender_name: "CometChaser",
-        },
-        {
-            sender_id: "1a2b3c4d-0003",
-            reciever_id: "9z8y7x6w-0004",
-            message: "Your galaxy is shining!",
-            sent_at: new Date().toString(),
-            sender_name: "CometChaser",
-        },
-    ];
-
-    const taskActivityData: TaskActivityView[] = [
-        {
-            username: "astroLuna23",
-            name: "Luna Vega",
-            title: "Finished 'Physics Homework 3'",
-            completedAt: "2025-04-07T15:32:00Z",
-        },
-        {
-            username: "nebulaNova",
-            name: "Nova Lin",
-            title: "Completed 'Biology Lab Report'",
-            completedAt: "2025-04-07T21:14:00Z",
-        },
-        {
-            username: "cosmoChris",
-            name: "Chris Orion",
-            title: "Submitted 'CS Project Proposal'",
-            completedAt: "2025-04-08T09:47:00Z",
-        },
-        {
-            username: "starrySkylar",
-            name: "Skylar Ray",
-            title: "Checked off 'Read Ch. 4 of Psych'",
-            completedAt: "2025-04-08T12:03:00Z",
-        },
-        {
-            username: "rocketRiya",
-            name: "Riya Sol",
-            title: "Wrapped up 'Math Problem Set 6'",
-            completedAt: "2025-04-08T17:58:00Z",
-        },
-    ];
-
     const {data: allFriendsData, isLoading} = useQuery({
         queryKey: ["viewAllFriends"],
         queryFn: getAllFriends,
@@ -134,6 +50,15 @@ export default function Page() {
         queryFn: getPendingFriends,
     });
 
+    const {data: recentActivityData, isLoading: isActivityLoading} = useQuery({
+        queryKey: ["viewRecentActivity"],
+        queryFn: getFriendsActivity
+    });
+
+    const {data: galaxyBoostData, isLoading: isGalaxyBoostLoading} = useQuery({
+        queryKey: ["viewGalaxyBoost"],
+        queryFn: getGravityBoostData,
+    })
     /**
      * TODO: Ryan add your query to get all the galaxy boosts for your call
      * similar to the format above.
@@ -155,7 +80,16 @@ export default function Page() {
         );
     }
 
-    if (!isLoading && !isPendLoading && canView) {
+    if (isLoading || isPendLoading || isActivityLoading || isGalaxyBoostLoading) {
+        return (
+            <>
+                <Navbar/>
+                <CircularProgress/>
+            </>
+        );
+    }
+
+    if (!isLoading && !isPendLoading  && !isActivityLoading && !isGalaxyBoostLoading && canView) {
         return (
             <>
                 <Navbar/>
@@ -178,7 +112,7 @@ export default function Page() {
                                 friendsInformation={
                                     allFriendsData ? allFriendsData : []
                                 }
-                                recentGalaxyBoosts={dummyGalaxyBoosts}
+                                recentGalaxyBoosts={galaxyBoostData}
                                 pendingFriends={
                                     pendingFriendsData ? pendingFriendsData : []
                                 }
@@ -189,7 +123,7 @@ export default function Page() {
                             index={1}
                         >
                             <GalaxyBoostStepper
-                                galaxyBoostsRes={dummyGalaxyBoosts}
+                                galaxyBoostsRes={galaxyBoostData}
                             />
                         </TabPanel>
                         <TabPanel
@@ -197,7 +131,7 @@ export default function Page() {
                             index={2}
                         >
                             <FriendActivityStepper
-                                allRecentActivity={taskActivityData}
+                                allRecentActivity={recentActivityData ? recentActivityData : []}
                             />
                         </TabPanel>
                     </Box>

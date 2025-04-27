@@ -101,7 +101,7 @@ export default function FriendsStepper({
 
 		removeFriend(id)
 			.then((res) => {
-				setSnackbarMessage("Removing the friend....");
+				setSnackbarMessage("Removed said friend.");
 				setOpenSnackbar(true);
 				setFriends((prev) => prev.filter((f) => f.id !== id));
 			})
@@ -192,7 +192,7 @@ export default function FriendsStepper({
 			>
 				<Grid2 size={{ xs: 12, md: 6 }}>
 					<h2>Friends</h2>
-					{friendsInformation.length === 0 && <p>No friends found</p>}
+					{friends.length === 0 && <p>No friends found</p>}
 					<List>
 						{friends.map((friend, index) => (
 							<ListItem
@@ -252,8 +252,8 @@ export default function FriendsStepper({
 									{boost.sender_name.substring(0, 2)}
 								</Avatar>
 								<ListItemText
-									primary={`Boost from ${boost.sender_name}`}
-									secondary={boost.message}
+									primary={boost.message}
+									secondary={`Boost from ${boost.sender_name}`}
 									sx={{ marginLeft: 2, color: "black" }}
 								/>
 								<RocketLaunch
