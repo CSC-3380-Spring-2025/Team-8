@@ -20,10 +20,21 @@ namespace PlannerApi.Controllers
             _context = context;
         }
 
-        // GET: api/task/5
+        // GET: api/task/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Tasks>> GetTask(int id)
         {
+            /*
+             * Retrieves a specific task by its ID.
+             * 
+             * Inputs:
+             * - Route parameter: id (integer) - the ID of the task to retrieve.
+             * 
+             * Returns:
+             * - HTTP 200 OK with the task details if found.
+             * - HTTP 404 Not Found if the task does not exist.
+             */
+            
             var taskItem = await _context.Tasks.FindAsync(id);
 
             if (taskItem == null)
@@ -34,9 +45,20 @@ namespace PlannerApi.Controllers
             return taskItem;
         }
 
+        // GET: api/task
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
         {
+            /*
+             * Retrieves all tasks that belong to the currently authenticated user.
+             * 
+             * Inputs:
+             * - JWT token in the request header to identify the user.
+             * 
+             * Returns:
+             * - HTTP 200 OK with a list of the user's tasks.
+             * - HTTP 401 Unauthorized if no valid JWT token is provided.
+             */
             string? userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -64,6 +86,18 @@ namespace PlannerApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Tasks>> PostTask(TaskDto taskItem)
         {
+            /*
+             * Creates a new task for the currently authenticated user.
+             * 
+             * Inputs:
+             * - Request body: TaskDto containing title, description, priority, and due date.
+             * - JWT token in the request header to identify the user.
+             * 
+             * Returns:
+             * - HTTP 201 Created with the newly created task details.
+             * - HTTP 401 Unauthorized if no valid JWT token is provided.
+             */
+            
             string? userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -71,7 +105,6 @@ namespace PlannerApi.Controllers
                 return Unauthorized("Missing JWT token in header.");
             }
 
-            // Map the Task DTO to a task object so the database recognizes it
             Tasks task = new Tasks
             {
                 UserId = userId,
@@ -89,10 +122,25 @@ namespace PlannerApi.Controllers
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
         }
 
-        // PUT: api/task/5
+        // PUT: api/task/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTask(int id, TaskDto taskItem)
         {
+            /*
+             * Updates an existing task owned by the currently authenticated user.
+             * 
+             * Inputs:
+             * - Route parameter: id (integer) - the ID of the task to update.
+             * - Request body: TaskDto containing updated task information.
+             * - JWT token in the request header to identify the user.
+             * 
+             * Returns:
+             * - HTTP 204 No Content if the update is successful.
+             * - HTTP 400 Bad Request if the ID in the URL and body do not match.
+             * - HTTP 401 Unauthorized if no valid JWT token is provided.
+             * - HTTP 404 Not Found if the task does not exist or is not owned by the user.
+             */
+            
             if (id != taskItem.Id)
             {
                 return BadRequest("ID in URL and body do not match.");
@@ -111,7 +159,6 @@ namespace PlannerApi.Controllers
                 return NotFound("Task not found or not authorized.");
             }
 
-            // Map updated values from DTO to entity
             existingTask.Title = taskItem.Title;
             existingTask.Description = taskItem.Description;
             existingTask.Priority = taskItem.Priority;
@@ -144,11 +191,21 @@ namespace PlannerApi.Controllers
             return CreatedAtAction(nameof(GetTask), new { id = existingTask.Id }, existingTask);
         }
 
-
-        // DELETE: api/task/5
+        // DELETE: api/task/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
+            /*
+             * Deletes a specific task by its ID.
+             * 
+             * Inputs:
+             * - Route parameter: id (integer) - the ID of the task to delete.
+             * 
+             * Returns:
+             * - HTTP 204 No Content if the task is successfully deleted.
+             * - HTTP 404 Not Found if the task does not exist.
+             */
+            
             var taskItem = await _context.Tasks.FindAsync(id);
             if (taskItem == null)
             {
@@ -166,7 +223,6 @@ namespace PlannerApi.Controllers
             return _context.Tasks.Any(e => e.Id == id);
         }
 
-        // Extract User ID from JWT Token
         private string? GetUserIdFromToken()
         {
             return User.FindFirstValue(ClaimTypes.NameIdentifier);
