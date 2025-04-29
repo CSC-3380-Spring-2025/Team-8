@@ -10,8 +10,6 @@ Qualiry Assurance Tester: Tyler (Lynx) Lallande (tylerlallande)
 
 # About Our Software
 
-Describe a little about what the project is about here.
-
 Let’s get ready for take off with this NEW innovative site called Study Verse. Study verse is an interactive website that makes studying more than just a one dimensional thing. With this web page you can add users, unlock new study levels to compare your process to others, and many more exciting features. 
 
 For those who are pilled with task/ events, you can create a reminder in the calendar to let you know when those task are due. 
