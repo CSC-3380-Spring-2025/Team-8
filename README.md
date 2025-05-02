@@ -19,7 +19,7 @@ Now, we didn’t forget about those who like those short study sessions or even 
 - Modern day web browsers on mobile and desktop.
   
 # Important Links
-Kanban Board: [link]\
+Kanban Board: (https://github.com/orgs/CSC-3380-Spring-2025/projects/10)[https://github.com/orgs/CSC-3380-Spring-2025/projects/10]
 Designs: [link]\
 Styles Guide(s): [link]
 
