@@ -93,7 +93,6 @@ export default function StarBackground({
 				// Move star
 				star.x -= star.speed;
 
-				// Reset star position when it goes off screen
 				if (star.x < -star.size) {
 					star.x = canvas.width + star.size;
 					star.y = Math.random() * canvas.height;
@@ -103,12 +102,9 @@ export default function StarBackground({
 			animationFrameRef.current = requestAnimationFrame(animate);
 		};
 
-		// Set up canvas and start animation
 		handleResize();
 		window.addEventListener("resize", handleResize);
 		animate();
-
-		// Clean up
 		return () => {
 			window.removeEventListener("resize", handleResize);
 			cancelAnimationFrame(animationFrameRef.current);
