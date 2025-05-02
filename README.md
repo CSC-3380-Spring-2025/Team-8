@@ -21,7 +21,7 @@ Now, we didn’t forget about those who like those short study sessions or even 
 # Important Links
 Kanban Board: (https://github.com/orgs/CSC-3380-Spring-2025/projects/10)[https://github.com/orgs/CSC-3380-Spring-2025/projects/10]
 Designs: [link]\
-Styles Guide(s): [link]
+Styles Guide(s): [https://google.github.io/styleguide/csharp-style.html]
 
 # How to Run Dev and Test Environment
 
