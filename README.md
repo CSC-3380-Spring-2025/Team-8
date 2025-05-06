@@ -16,7 +16,7 @@ Describe a little about what the project is about here.
   
 # Important Links
 Kanban Board: [link]\
-Designs: [link]\
+Designs: [https://www.figma.com/design/CCq26letLS3N06Gg7P7bb9/Studyverse-WireFrame?node-id=3-583&m=dev&t=XWx8xYAfgv4ZqcnG-1]\
 Styles Guide(s): [link]
 
 # How to Run Dev and Test Environment
