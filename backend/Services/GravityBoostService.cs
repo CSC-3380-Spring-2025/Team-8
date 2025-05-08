@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
+using StudyVerseBackend.Infastructure.Enumerations;
 using StudyVerseBackend.Models.GalaxyBoost;
 
 namespace StudyVerseBackend.Services
@@ -61,6 +62,9 @@ namespace StudyVerseBackend.Services
             _context.GravityBoosts.Add(gb);
 
             await _context.SaveChangesAsync();
+            
+            // Update the person who recieves this message stars!!
+            await UpdatePlanetStatusFromBoost(galaxyBoostPost.receiver_id);
 
             return gb;
         }
@@ -73,6 +77,55 @@ namespace StudyVerseBackend.Services
             _context.GravityBoosts.Remove(boost);
             await _context.SaveChangesAsync();
             return true;
+        }
+        
+        /**
+         * This method updates the planet status of a user based on the number of gravity boosts they have received in the last 7 days.
+         */
+        public async Task<bool> UpdatePlanetStatusFromBoost(string receiverId)
+        {
+            // Find the user
+            var user = await _context.Users.FindAsync(receiverId);
+            if (user == null)
+                return false;
+            
+            var recentBoostCount = await _context.GravityBoosts
+                .Where(gb => gb.Receiver_Id == receiverId && gb.Sent_At >= DateTime.UtcNow.AddDays(-7))
+                .CountAsync();
+
+            var currentPlanet = user.PlanetStatus;
+            
+            // Update planet based on boost count
+            /**
+             * If a user has recieved 5 or more boosts in the last 7 days, they will advance 2 planets.
+             * Else: If they have received 2 or more boosts, they will advance 1 planet.
+             */
+            if (recentBoostCount >= 5) 
+            {
+                if ((int)currentPlanet + 2 <= (int)PlanetStatus.Pluto)
+                    user.PlanetStatus = (PlanetStatus)((int)currentPlanet + 2);
+                else
+                    user.PlanetStatus = PlanetStatus.Pluto;
+                
+                user.Stars += 15;
+            }
+            else if (recentBoostCount >= 2) 
+            {
+                // Advance 1 planet
+                if ((int)currentPlanet + 1 <= (int)PlanetStatus.Pluto)
+                    user.PlanetStatus = (PlanetStatus)((int)currentPlanet + 1);
+                
+                user.Stars += 8;
+            }
+            
+            // Save changes if planet status changed
+            if (user.PlanetStatus != currentPlanet)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            
+            return false;
         }
     }
 }

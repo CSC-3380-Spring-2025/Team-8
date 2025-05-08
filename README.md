@@ -20,7 +20,7 @@ Now, we didn’t forget about those who like those short study sessions or even 
   
 # Important Links
 Kanban Board: [https://github.com/orgs/CSC-3380-Spring-2025/projects/10](https://github.com/orgs/CSC-3380-Spring-2025/projects/10) \
-Designs: [link]\
+Designs: [https://www.figma.com/design/CCq26letLS3N06Gg7P7bb9/Studyverse-WireFrame?node-id=3-583&m=dev&t=XWx8xYAfgv4ZqcnG-1]\
 Styles Guide(s): [https://google.github.io/styleguide/csharp-style.html]
 
 # How to Run Dev and Test Environment

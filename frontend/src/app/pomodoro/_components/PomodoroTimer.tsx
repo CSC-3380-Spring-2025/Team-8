@@ -166,7 +166,7 @@ if (session?.sessionId) {
 			<Card sx={{ width: 400, bgcolor: "#1a1e33", borderRadius: 4, boxShadow: 6, paddingX: 2, paddingY: 8 }}>
 				<CardContent>
 					<Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
-						🚀 Space Pomodoro
+						AstroFocus 🚀
 					</Typography>
 					<TextField
 						fullWidth
