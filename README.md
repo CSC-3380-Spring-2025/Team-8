@@ -65,7 +65,7 @@ npm run dev
 4. Upon running the command, you'll be presented with multiple links. To run the application, please click the http://localhost:3000 link
 ![Screenshot 2025-05-07 at 11 07 43 AM](https://github.com/user-attachments/assets/43400b1f-79c4-43d9-a90f-f91d9eb8dd1f)
 
-5. 
+5. If you run into any issues with HTTPs, you may need to configure your dotnet to allow for it or allow the browser you are on to proceed to the link. https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-dev-certs
 
 ## To run the dotnet project by itself
 1. Open the backend folder in the editor of your choice
