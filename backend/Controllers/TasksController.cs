@@ -1,9 +1,12 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using PlannerApi.DTOs;
 using StudyVerseBackend.Entities;
 using StudyVerseBackend.Infastructure.Contexts;
+using StudyVerseBackend.Infastructure.Enumerations;
+using StudyVerseBackend.Models;
 
 namespace PlannerApi.Controllers
 {
@@ -32,7 +35,7 @@ namespace PlannerApi.Controllers
              * - HTTP 200 OK with the task details if found.
              * - HTTP 404 Not Found if the task does not exist.
              */
-
+            
             var taskItem = await _context.Tasks.FindAsync(id);
 
             if (taskItem == null)
@@ -57,7 +60,6 @@ namespace PlannerApi.Controllers
              * - HTTP 200 OK with a list of the user's tasks.
              * - HTTP 401 Unauthorized if no valid JWT token is provided.
              */
-
             string? userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -65,20 +67,20 @@ namespace PlannerApi.Controllers
                 return Unauthorized("Missing JWT token in header.");
             }
 
-            var allTasks = await _context.Tasks
-                .Where(task => task.UserId == userId)
+            var allTask = await _context.Tasks
+                .Where(task => task.UserId.Equals(userId))
                 .Select(task => new TaskDto
                 {
                     Id = task.Id,
-                    Title = task.Title,
                     Description = task.Description,
-                    Priority = task.Priority,
+                    DueDate = task.DueDate.HasValue ? task.DueDate : null,
                     IsCompleted = task.IsCompleted,
-                    DueDate = task.DueDate
+                    Title = task.Title,
+                    Priority = task.Priority
                 })
                 .ToListAsync();
 
-            return allTasks;
+            return allTask;
         }
 
         // POST: api/task
@@ -96,7 +98,7 @@ namespace PlannerApi.Controllers
              * - HTTP 201 Created with the newly created task details.
              * - HTTP 401 Unauthorized if no valid JWT token is provided.
              */
-
+            
             string? userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -110,7 +112,7 @@ namespace PlannerApi.Controllers
                 Title = taskItem.Title,
                 Description = taskItem.Description,
                 IsCompleted = false,
-                DueDate = taskItem.DueDate,
+                DueDate = taskItem.DueDate.HasValue ? taskItem.DueDate : null,
                 Priority = taskItem.Priority,
                 CreatedAt = DateTime.UtcNow
             };
@@ -119,6 +121,62 @@ namespace PlannerApi.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
+        }
+        
+        private async Task UpdatePlanetStatusBasedOnTaskCompletion(Tasks task)
+        {
+            if (!task.IsCompleted || !task.CompletedAt.HasValue || !task.DueDate.HasValue)
+                return;
+            
+            // Calculate completion metrics
+            DateTime dueDateTime = task.DueDate.Value.ToDateTime(TimeOnly.MaxValue);
+            TimeSpan totalAllowedTime = dueDateTime - task.CreatedAt;
+            
+            // Skip if due date was before creation (meaning it was like invalid)
+            if (totalAllowedTime.TotalHours <= 0)
+                return;
+            
+            double completionEfficiency = totalAllowedTime.TotalHours / totalAllowedTime.TotalHours;
+            
+            var user = await _context.Users.FindAsync(task.UserId);
+            if (user == null)
+                return;
+            
+            // Update planet based on completion efficiency
+            var currentPlanet = user.PlanetStatus;
+            PlanetStatus newPlanet = currentPlanet;
+            
+            if (completionEfficiency <= 0.5) 
+            {
+                if ((int)currentPlanet + 2 <= (int)PlanetStatus.Pluto)
+                    newPlanet = (PlanetStatus)((int)currentPlanet + 2);
+                else
+                    newPlanet = PlanetStatus.Pluto;
+            }
+            else if (completionEfficiency <= 0.8) 
+            {
+                if ((int)currentPlanet + 1 <= (int)PlanetStatus.Pluto)
+                    newPlanet = (PlanetStatus)((int)currentPlanet + 1);
+            }
+            else if (completionEfficiency > 1.2) 
+            {
+                if ((int)currentPlanet - 1 >= (int)PlanetStatus.Mercury)
+                    newPlanet = (PlanetStatus)((int)currentPlanet - 1);
+            }
+            
+            if (newPlanet != currentPlanet)
+            {
+                user.PlanetStatus = newPlanet;
+                
+                // Award stars based on planet progression
+                if (newPlanet > currentPlanet)
+                {
+                    int planetsAdvanced = (int)newPlanet - (int)currentPlanet;
+                    user.Stars += planetsAdvanced * 10;
+                }
+                
+                await _context.SaveChangesAsync();
+            }
         }
 
         // PUT: api/task/{id}
@@ -139,14 +197,13 @@ namespace PlannerApi.Controllers
              * - HTTP 401 Unauthorized if no valid JWT token is provided.
              * - HTTP 404 Not Found if the task does not exist or is not owned by the user.
              */
-
+            
             if (id != taskItem.Id)
             {
                 return BadRequest("ID in URL and body do not match.");
             }
 
             string? userId = GetUserIdFromToken();
-
             if (userId == null)
             {
                 return Unauthorized("Missing JWT token in header.");
@@ -154,7 +211,6 @@ namespace PlannerApi.Controllers
 
             var existingTask = await _context.Tasks
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
-
             if (existingTask == null)
             {
                 return NotFound("Task not found or not authorized.");
@@ -163,6 +219,8 @@ namespace PlannerApi.Controllers
             existingTask.Title = taskItem.Title;
             existingTask.Description = taskItem.Description;
             existingTask.Priority = taskItem.Priority;
+            
+            bool taskJustCompleted = !existingTask.IsCompleted && taskItem.IsCompleted;
 
             if (existingTask.IsCompleted && !taskItem.IsCompleted)
             {
@@ -174,11 +232,16 @@ namespace PlannerApi.Controllers
             }
 
             existingTask.IsCompleted = taskItem.IsCompleted;
-            existingTask.DueDate = taskItem.DueDate;
+            existingTask.DueDate = taskItem.DueDate.HasValue ? taskItem.DueDate : null;
 
             try
             {
                 await _context.SaveChangesAsync();
+                
+                if (taskJustCompleted && existingTask.DueDate.HasValue)
+                {
+                    await UpdatePlanetStatusBasedOnTaskCompletion(existingTask);
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -206,9 +269,8 @@ namespace PlannerApi.Controllers
              * - HTTP 204 No Content if the task is successfully deleted.
              * - HTTP 404 Not Found if the task does not exist.
              */
-
+            
             var taskItem = await _context.Tasks.FindAsync(id);
-
             if (taskItem == null)
             {
                 return NotFound();

@@ -107,7 +107,7 @@ export default function RecentTasksView({ tasks }: { tasks: TaskDto[] }) {
 }
 
 function CustomChip(priority: number) {
-	if (priority == 1) {
+	if (priority == 3) {
 		return (
 			<Chip
 				label={"High Priority"}
