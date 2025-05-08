@@ -10,14 +10,18 @@ Qualiry Assurance Tester: Tyler (Lynx) Lallande (tylerlallande)
 
 # About Our Software
 
-Describe a little about what the project is about here.
+Let’s get ready for take off with this NEW innovative site called Study Verse. Study verse is an interactive website that makes studying more than just a one dimensional thing. With this web page you can add users, unlock new study levels to compare your process to others, and many more exciting features. 
+
+For those who are pilled with task/ events, you can create a reminder in the calendar to let you know when those task are due. 
+Now, we didn’t forget about those who like those short study sessions or even those who like to take breaks in between. We integrated a timer into the web page to make sure users stay on time.
+
 ## Platforms Tested on
 - Modern day web browsers on mobile and desktop.
   
 # Important Links
-Kanban Board: [link]\
+Kanban Board: [https://github.com/orgs/CSC-3380-Spring-2025/projects/10](https://github.com/orgs/CSC-3380-Spring-2025/projects/10) \
 Designs: [https://www.figma.com/design/CCq26letLS3N06Gg7P7bb9/Studyverse-WireFrame?node-id=3-583&m=dev&t=XWx8xYAfgv4ZqcnG-1]\
-Styles Guide(s): [link]
+Styles Guide(s): [https://google.github.io/styleguide/csharp-style.html]
 
 # How to Run Dev and Test Environment
 
@@ -58,6 +62,10 @@ npm install
 ```terminal
 npm run dev
 ```
+4. Upon running the command, you'll be presented with multiple links. To run the application, please click the http://localhost:3000 link
+![Screenshot 2025-05-07 at 11 07 43 AM](https://github.com/user-attachments/assets/43400b1f-79c4-43d9-a90f-f91d9eb8dd1f)
+
+5. 
 
 ## To run the dotnet project by itself
 1. Open the backend folder in the editor of your choice
